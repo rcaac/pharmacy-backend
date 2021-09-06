@@ -2,21 +2,16 @@
 
 namespace App\Http\Controllers\Api;
 
-
 use App\Models\DetailTicketInvoice;
 use App\Models\Product;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Date;
 
 class ReportController
 {
-    public function getReportBox($id) {
-
-        $users = User::all();
-
-        // share data to view
-        view()->share('reports.box.report_boxes',$users);
-
+    public function getReportBox($id): JsonResponse
+    {
         $details = DetailTicketInvoice::select(
             'ticket_invoices.prefijo',
             'ticket_invoices.numero',
