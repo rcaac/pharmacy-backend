@@ -234,7 +234,7 @@ class TicketInvoiceController extends Controller
                 'customer_id'             => $customer->id,
                 'cash_id'                 => request('cash_id'),
                 'type_buy_id'             => request('type_buy_id'),
-                'entity_id'               => request('entity_id')
+                'entity_id'               => $this->getEntity()
             ]);
 
             $first = 0;
@@ -275,7 +275,7 @@ class TicketInvoiceController extends Controller
                     'product_id'         => $sale['id'],
                     'area_assignment_id' => request('area_assignment_id'),
                     'movement_id'        => '2',
-                    'entity_id'          => request('entity_id'),
+                    'entity_id'          => $this->getEntity(),
                 ]);
 
                 $product_stock_id = ProductStock::where('product_id', $sale['id'])->where('entity_id', request('entity_id'))->value('id');
@@ -299,22 +299,18 @@ class TicketInvoiceController extends Controller
                     'condition'         => '1',
                     'product_id'        => $sale['id'],
                     'ticket_invoice_id' => $ticket_invoice->id,
-                    'entity_id'         => request('entity_id')
+                    'entity_id'         => $this->getEntity()
                 ]);
-
-
 
                 $date_now = Carbon::now()->format('Y-m-d');
 
                 $quantity_current = -1;
 
                 while($quantity_current < 0) {
-
                     $current = DetailInvoicePurchase::where('expiration_date', '>', $date_now)
                         ->where('stock_quantity', '!=', 0)
                         ->where('product_id', $sale['id'])
                         ->value('stock_quantity');
-
 
                     $quantity_current = (int)$current - $quantity;
 
@@ -331,7 +327,6 @@ class TicketInvoiceController extends Controller
 
                     $quantity = -1 * ($quantity_current);
                 }
-
             }
 
             DB::commit();
@@ -345,7 +340,6 @@ class TicketInvoiceController extends Controller
         }catch(Exception $e){
             DB::rollBack();
             return response()->json($e->getMessage());
-
         }
     }
 

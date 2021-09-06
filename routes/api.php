@@ -99,7 +99,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('reverse', 'Api\TicketInvoiceController@reverse')->name('api.ticket.reverse');
 
     //************************************ REPORTES ***************************************************************************************
-
-
+    Route::get('report/box/{id}', 'Api\ReportController@getReportBox')->name('api.box.getReportBox');
 });
 

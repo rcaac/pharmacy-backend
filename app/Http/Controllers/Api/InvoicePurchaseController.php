@@ -212,7 +212,7 @@ class InvoicePurchaseController extends Controller
                 'supplier_id'               => $supplier->id,
                 'state_invoice_purchase_id' => '1',
                 'type_invoice_purchase_id'  => request('type_invoice_purchase_id'),
-                'entity_id'                 => request('entity_id'),
+                'entity_id'                 => $this->getEntity(),
             ]);
 
             $first = 0;
@@ -267,7 +267,7 @@ class InvoicePurchaseController extends Controller
                     'product_id'         => $purchase['id'],
                     'area_assignment_id' => request('area_assignment_id'),
                     'movement_id'        => '1',
-                    'entity_id'          => request('entity_id'),
+                    'entity_id'          => $this->getEntity(),
                 ]);
 
                 $product_stock_id = ProductStock::where('product_id', $purchase['id'])->where('entity_id', request('entity_id'))->value('id');
@@ -275,7 +275,7 @@ class InvoicePurchaseController extends Controller
                 if ($product_stock_id === null) {
                     ProductStock::create([
                         'stock'      => (int)$previousStock + $quantity,
-                        'entity_id'  => request('entity_id'),
+                        'entity_id'  => $this->getEntity(),
                         'product_id' => $purchase['id']
                     ]);
                 }else {
@@ -297,7 +297,7 @@ class InvoicePurchaseController extends Controller
                     'condition'           => '1',
                     'product_id'          => $purchase['id'],
                     'invoice_purchase_id' => $invoice_purchase->id,
-                    'entity_id'           => request('entity_id'),
+                    'entity_id'           => $this->getEntity(),
                 ]);
             }
 
