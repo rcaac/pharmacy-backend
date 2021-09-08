@@ -286,12 +286,17 @@ class InvoicePurchaseController extends Controller
                 }
 
                 DetailInvoicePurchase::create([
-                    'lot'                 => $purchase['lot'],
-                    'expiration_date'     => $purchase['control_expiration'] == 0 ? null : Carbon::parse($purchase['expiration_date'])->endOfMonth(),
-                    'quantity'            => $quantity,
-                    'stock_quantity'      => $quantity,
-                    'buy_unit'            => $purchase['buy_unit'],
-                    'sale_unit'           => $purchase['sale_unit'],
+                    'lot'                  => $purchase['lot'],
+                    'expiration_date'      => $purchase['control_expiration'] == 0 ? null : Carbon::parse($purchase['expiration_date'])->endOfMonth(),
+                    'quantity'             => $quantity,
+                    'stock_quantity'       => $quantity,
+                    'buy_unit'             => $purchase['buy_unit'],
+                    'sale_unit'            => $purchase['sale_unit'],
+                    'sale_blister'         => $purchase['sale_blister'],
+                    'sale_box'             => $purchase['sale_box'],
+                    'minimum_sale_unit'    => $purchase['minimum_sale_unit'],
+                    'minimum_sale_blister' => $purchase['minimum_sale_blister'],
+                    'minimum_sale_box'     => $purchase['minimum_sale_box'],
                     'total'               => $purchase['total'],
                     'created_by'          => $this->getPersonId(),
                     'condition'           => '1',
