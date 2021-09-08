@@ -240,7 +240,7 @@ class TicketInvoiceController extends Controller
             $first = 0;
             $last = 0;
 
-            foreach($sales as $clave => $sale) {
+            foreach($sales as $sale) {
 
                 if (strpos($sale['quantity'], 'F') !== false) {
                     $quantities = explode("F", $sale['quantity']);
@@ -289,7 +289,7 @@ class TicketInvoiceController extends Controller
 
                 DetailTicketInvoice::create([
                     'lot'               => $sale['lot'],
-                    'expiration_date'   => $sale['details'][$clave]['expiration_date'],
+                    'expiration_date'   => $sale['details'][0]['expiration_date'],
                     'quantity'          => $quantity,
                     'sale_unit'         => $sale_unit,
                     'sale_blister'      => $sale['sale_blister'],
@@ -335,7 +335,8 @@ class TicketInvoiceController extends Controller
                 [
                     "message"   => "Operación realizada con éxito",
                     "idticktet" => $ticket_invoice->id
-                ],201);
+                ],
+                201);
 
         }catch(Exception $e){
             DB::rollBack();
