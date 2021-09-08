@@ -18,8 +18,10 @@ class ReportController
             'ticket_invoices.date',
             'products.name',
             'detail_ticket_invoices.quantity',
-            'detail_ticket_invoices.total'
+            'detail_ticket_invoices.total',
+            
         )
+        
            ->join('ticket_invoices', 'ticket_invoices.id', '=', 'detail_ticket_invoices.ticket_invoice_id')
            ->join('products', 'products.id', '=', 'detail_ticket_invoices.product_id')
            ->where('ticket_invoices.cash_id', $id)

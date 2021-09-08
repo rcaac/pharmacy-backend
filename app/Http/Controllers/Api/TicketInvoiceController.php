@@ -302,19 +302,20 @@ class TicketInvoiceController extends Controller
                     'entity_id'         => $this->getEntity()
                 ]);
 
+                
                 $date_now = Carbon::now()->format('Y-m-d');
 
                 $quantity_current = -1;
 
-                while($quantity_current < 0) {
-                    $current = DetailInvoicePurchase::where('expiration_date', '>', $date_now)
+                 while($quantity_current < 0)  {
+                    $current = DetailInvoicePurchase::where('expiration_date', '>', $date_now)->first()
                         ->where('stock_quantity', '!=', 0)
                         ->where('product_id', $sale['id'])
                         ->value('stock_quantity');
 
                     $quantity_current = (int)$current - $quantity;
 
-                    $detail_invoice_purchase_id = DetailInvoicePurchase::where('expiration_date', '>', $date_now)
+                    $detail_invoice_purchase_id = DetailInvoicePurchase::where('expiration_date', '>', $date_now)->first()
                         ->where('stock_quantity', '!=', 0)
                         ->where('product_id', $sale['id'])
                         ->value('id');
@@ -326,21 +327,24 @@ class TicketInvoiceController extends Controller
                     ])->save();
 
                     $quantity = -1 * ($quantity_current);
-                }
+                } ;  
+
+
             }
 
             DB::commit();
 
-            return response()->json(
-                [
-                    "message"   => "Operación realizada con éxito",
-                    "idticktet" => $ticket_invoice->id
-                ],201);
+            
 
         }catch(Exception $e){
             DB::rollBack();
             return response()->json($e->getMessage());
         }
+        return response()->json(
+            [
+                "message"   => "Operación realizada con éxito",
+                "idticktet" => $ticket_invoice->id
+            ],201);
     }
 
     public function update($id): JsonResponse
