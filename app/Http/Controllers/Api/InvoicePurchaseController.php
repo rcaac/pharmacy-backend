@@ -287,7 +287,7 @@ class InvoicePurchaseController extends Controller
 
                 DetailInvoicePurchase::create([
                     'lot'                  => $purchase['lot'],
-                    'expiration_date'      => $purchase['control_expiration'] == 0 ? null : Carbon::parse($purchase['expiration_date'])->endOfMonth(),
+                    'expiration_date'      => Carbon::parse($purchase['expiration_date'])->endOfMonth(),
                     'quantity'             => $quantity,
                     'stock_quantity'       => $quantity,
                     'buy_unit'             => $purchase['buy_unit'],

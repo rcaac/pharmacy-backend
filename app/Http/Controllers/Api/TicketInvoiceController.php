@@ -346,8 +346,6 @@ class TicketInvoiceController extends Controller
 
             DB::commit();
 
-<<<<<<< HEAD
-
             return response()->json(
                 [
                     "message"   => "Operación realizada con éxito",
@@ -355,17 +353,13 @@ class TicketInvoiceController extends Controller
                 ],
                 201);
 
-=======
+
             return response()->json(["message"   => "Operación realizada con éxito","idticktet" => $ticket_invoice->id ], 201);
->>>>>>> 683553416abccd3d8a2d36ceb760d4b5235d3b69
+
         }catch(Exception $e){
             DB::rollBack();
             return response()->json($e->getMessage());
         }
-<<<<<<< HEAD
-=======
-
->>>>>>> 683553416abccd3d8a2d36ceb760d4b5235d3b69
     }
 
     public function update($id): JsonResponse
