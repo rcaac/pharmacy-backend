@@ -69,17 +69,19 @@ class TicketInvoiceController extends Controller
 
     public function listProducts($search): JsonResponse
     {
+        $entity = $this->getEntity();
         $products = Product::with([
             'laboratory',
             'generic',
             'category',
             'presentation',
             'location',
-            'stock' => function($query){
-                $query->where('entity_id', $this->getEntity());
+            'stock' => function($query) use ($entity){
+                $query->where('entity_id', $entity);
             },
-            'details' => function($query){
+            'details' => function($query) use ($entity){
                 $query->where('stock_quantity', '>', 0);
+                $query->where('entity_id', $entity);
             }
         ])
         ->where('condition', '1');
@@ -113,8 +115,9 @@ class TicketInvoiceController extends Controller
 
     public function listProductBarcode($search): JsonResponse
     {
-        $products = Product::with(['laboratory', 'generic', 'category', 'presentation', 'location', 'stock' => function($query){
-            $query->where('entity_id', $this->getEntity());
+        $entity = $this->getEntity();
+        $products = Product::with(['laboratory', 'generic', 'category', 'presentation', 'location', 'stock' => function($query) use ($entity){
+            $query->where('entity_id', $entity);
         }])
             ->where('condition', '1')
             ->where('barcode', $search)
@@ -302,7 +305,7 @@ class TicketInvoiceController extends Controller
                     'entity_id'         => $this->getEntity()
                 ]);
 
-                
+
                 $date_now = Carbon::now()->format('Y-m-d');
 
                 $quantity_current = -1;
@@ -327,33 +330,25 @@ class TicketInvoiceController extends Controller
                     ])->save();
 
                     $quantity = -1 * ($quantity_current);
-                } ;  
+                } ;
 
 
             }
 
             DB::commit();
 
-<<<<<<< HEAD
+
             return response()->json(
                 [
                     "message"   => "Operación realizada con éxito",
                     "idticktet" => $ticket_invoice->id
                 ],
                 201);
-=======
-            
->>>>>>> 8b4c396a18c38b93bef28a22f3aa1a5a417970fd
 
         }catch(Exception $e){
             DB::rollBack();
             return response()->json($e->getMessage());
         }
-        return response()->json(
-            [
-                "message"   => "Operación realizada con éxito",
-                "idticktet" => $ticket_invoice->id
-            ],201);
     }
 
     public function update($id): JsonResponse
