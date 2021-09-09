@@ -71,6 +71,7 @@ class TicketInvoiceController extends Controller
     {
         $entity = $this->getEntity();
         $products = Product::with([
+            
             'laboratory',
             'generic',
             'category',
@@ -84,6 +85,13 @@ class TicketInvoiceController extends Controller
                 $query->where('entity_id', $entity);
             }
         ])
+
+       /* $products = DB::table('products')
+        ->join('detail_invoice_purchase','detail_invoice_purchase.product_id','=','products.id')
+        ->select('laboratory','generic','category','presentation','location')
+        ->get()*/
+       
+
         ->where('condition', '1');
 
         if (strpos($search, '*') !== false) {
@@ -311,6 +319,7 @@ class TicketInvoiceController extends Controller
                 $quantity_current = -1;
 
                  while($quantity_current < 0)  {
+
                     $current = DetailInvoicePurchase::where('expiration_date', '>', $date_now)->first()
                         ->where('stock_quantity', '!=', 0)
                         ->where('product_id', $sale['id'])
@@ -337,6 +346,7 @@ class TicketInvoiceController extends Controller
 
             DB::commit();
 
+<<<<<<< HEAD
 
             return response()->json(
                 [
@@ -345,10 +355,17 @@ class TicketInvoiceController extends Controller
                 ],
                 201);
 
+=======
+            return response()->json(["message"   => "Operación realizada con éxito","idticktet" => $ticket_invoice->id ], 201);
+>>>>>>> 683553416abccd3d8a2d36ceb760d4b5235d3b69
         }catch(Exception $e){
             DB::rollBack();
             return response()->json($e->getMessage());
         }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 683553416abccd3d8a2d36ceb760d4b5235d3b69
     }
 
     public function update($id): JsonResponse
