@@ -70,6 +70,7 @@ class TicketInvoiceController extends Controller
     public function listProducts($search): JsonResponse
     {
         $products = Product::with([
+            
             'laboratory',
             'generic',
             'category',
@@ -82,6 +83,13 @@ class TicketInvoiceController extends Controller
                 $query->where('stock_quantity', '>', 0);
             }
         ])
+
+       /* $products = DB::table('products')
+        ->join('detail_invoice_purchase','detail_invoice_purchase.product_id','=','products.id')
+        ->select('laboratory','generic','category','presentation','location')
+        ->get()*/
+       
+
         ->where('condition', '1');
 
         if (strpos($search, '*') !== false) {
@@ -308,6 +316,7 @@ class TicketInvoiceController extends Controller
                 $quantity_current = -1;
 
                  while($quantity_current < 0)  {
+
                     $current = DetailInvoicePurchase::where('expiration_date', '>', $date_now)->first()
                         ->where('stock_quantity', '!=', 0)
                         ->where('product_id', $sale['id'])
