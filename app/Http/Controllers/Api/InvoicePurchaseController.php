@@ -232,7 +232,7 @@ class InvoicePurchaseController extends Controller
                     $quantity = (int)$purchase['quantity'];
                 }
 
-                /*$product = Product::findOrFail($purchase['id']);
+                $product = Product::findOrFail($purchase['id']);
 
                 $product->fill([
                     'buy_unit'             => $purchase['buy_unit'],
@@ -244,7 +244,7 @@ class InvoicePurchaseController extends Controller
                     'minimum_sale_unit'    => $purchase['minimum_sale_unit'],
                     'minimum_sale_blister' => $purchase['minimum_sale_blister'],
                     'minimum_sale_box'     => $purchase['minimum_sale_box'],
-                ])->save();*/
+                ])->save();
 
                 $product_stock = ProductStock::where('product_id', $purchase['id'])
                     ->where('entity_id', request('entity_id'))
