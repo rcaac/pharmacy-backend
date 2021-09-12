@@ -71,7 +71,7 @@ class TicketInvoiceController extends Controller
     {
         $entity = $this->getEntity();
         $products = Product::with([
-            
+
             'laboratory',
             'generic',
             'category',
@@ -90,7 +90,7 @@ class TicketInvoiceController extends Controller
         ->join('detail_invoice_purchase','detail_invoice_purchase.product_id','=','products.id')
         ->select('laboratory','generic','category','presentation','location')
         ->get()*/
-       
+
 
         ->where('condition', '1');
 
@@ -353,9 +353,12 @@ class TicketInvoiceController extends Controller
                 ],
                 201);
 
+<<<<<<< Updated upstream
 
             return response()->json(["message"   => "Operación realizada con éxito","idticktet" => $ticket_invoice->id ], 201);
 
+=======
+>>>>>>> Stashed changes
         }catch(Exception $e){
             DB::rollBack();
             return response()->json($e->getMessage());
