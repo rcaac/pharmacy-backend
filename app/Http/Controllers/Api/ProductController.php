@@ -370,10 +370,12 @@ class ProductController extends Controller
 
     public function getKardex(): JsonResponse
     {
+        $itemsPerPage = (int) request('itemsPerPage');
+
         $kardex = Kardex::select('date', 'quantity', 'previousStock', 'currentStock', 'voucher', 'product_id', 'area_assignment_id', 'movement_id', 'entity_id')
                     ->with(['product', 'movement', 'assigment.person', 'entity'])
                     ->orderBy('id', 'DESC')
-                    ->paginate();
+                    ->paginate($itemsPerPage != 'undefined' ? $itemsPerPage : 10);
 
         return response()->json(
             [
