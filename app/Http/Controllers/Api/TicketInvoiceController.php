@@ -71,7 +71,6 @@ class TicketInvoiceController extends Controller
     {
         $entity = $this->getEntity();
         $products = Product::with([
-
             'laboratory',
             'generic',
             'category',
@@ -340,8 +339,6 @@ class TicketInvoiceController extends Controller
 
                     $quantity = -1 * ($quantity_current);
                 } ;
-
-
             }
 
             DB::commit();
@@ -353,12 +350,6 @@ class TicketInvoiceController extends Controller
                 ],
                 201);
 
-<<<<<<< Updated upstream
-
-            return response()->json(["message"   => "Operación realizada con éxito","idticktet" => $ticket_invoice->id ], 201);
-
-=======
->>>>>>> Stashed changes
         }catch(Exception $e){
             DB::rollBack();
             return response()->json($e->getMessage());
