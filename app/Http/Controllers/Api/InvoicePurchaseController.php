@@ -431,6 +431,95 @@ class InvoicePurchaseController extends Controller
         return response()->json(["message" => "Operación realizada con éxito"],201);
     }
 
+    public function itemUpdate(int $id): JsonResponse
+    {
+        $invoice_purchase = InvoicePurchase::findOrFail($id);
+
+        $supplier = Supplier::findOrFail(request('supplier_id'));
+
+        $purchase = request('purchase');
+
+        try{
+            DB::beginTransaction();
+
+            $invoice_purchase->fill([
+                'number'                    => request('number'),
+                'date'                      => Carbon::now(),
+                'subtotal'                  => request('subtotal'),
+                'total'                     => request('total'),
+                'created_by'                => $this->getPersonId(),
+                'condition'                 => '1',
+                'supplier_id'               => $supplier->id,
+                'state_invoice_purchase_id' => '1',
+                'type_invoice_purchase_id'  => request('type_invoice_purchase_id')
+            ])->save();
+
+
+
+
+
+                $product = Product::findOrFail($purchase['product']['id']);
+
+                $product->fill([
+                    'buy_unit'             => $purchase['product']['buy_unit'],
+                    'buy_blister'          => $purchase['product']['buy_blister'],
+                    'buy_box'              => $purchase['product']['buy_box'],
+                    'sale_unit'            => $purchase['product']['sale_unit'],
+                    'sale_blister'         => $purchase['product']['sale_blister'],
+                    'sale_box'             => $purchase['product']['sale_box'],
+                    'minimum_sale_unit'    => $purchase['product']['minimum_sale_unit'],
+                    'minimum_sale_blister' => $purchase['product']['minimum_sale_blister'],
+                    'minimum_sale_box'     => $purchase['product']['minimum_sale_box'],
+                ])->save();
+
+                $previousStock = DetailInvoicePurchase::where('product_id', $purchase['id'])->value('stock_quantity');
+                $currentStock = (int)$previousStock + (int)$purchase['quantity'];
+
+                Kardex::create([
+                    'date'               => request('date'),
+                    'quantity'           => (int)$purchase['quantity'],
+                    'previousStock'      => (int)$previousStock,
+                    'currentStock'       => $currentStock,
+                    'voucher'            => request('number'),
+                    'product_id'         => $purchase['id'],
+                    'area_assignment_id' => request('area_assignment_id'),
+                    'movement_id'        => '1',
+                    'entity_id'          => request('entity_id'),
+                ]);
+
+                ProductStock::create([
+                    'stock'      => (int)$previousStock + (int)$purchase['quantity'],
+                    'entity_id'  => request('entity_id'),
+                    'product_id' => $purchase['id']
+                ]);
+
+                $detail_invoice_purchase = DetailInvoicePurchase::findOrFail($purchase['id']);
+
+                $detail_invoice_purchase->fill([
+                    'lot'                 => $purchase['lot'],
+                    'expiration_date'     => $purchase['expiration_date'],
+                    'quantity'            => (int)$purchase['quantity'],
+                    'stock_quantity'      => (int)$purchase['quantity'],
+                    'buy_unit'            => $purchase['buy_unit'],
+                    'sale_unit'           => $purchase['sale_unit'],
+                    'total'               => $purchase['total'],
+                    'created_by'          => $this->getPersonId(),
+                    'condition'           => '1',
+                    'invoice_purchase_id' => $invoice_purchase->id,
+                    'entity_id'           => request('entity_id'),
+                ])->save();
+
+
+            DB::commit();
+
+            return response()->json(["message" => "Operación realizada con éxito"],201);
+
+        }catch(\Exception $e){
+            DB::rollBack();
+            return response()->json($e->getTraceAsString());
+        }
+    }
+
     public function destroy(): JsonResponse
     {
         $detail = DetailInvoicePurchase::findOrFail(request('id'));
@@ -453,8 +542,7 @@ class InvoicePurchaseController extends Controller
             );
         }else {
             $detail->fill([
-                'condition' => '0',
-                'stock_quantity' => '0'
+                'condition' => '0'
             ])->save();
 
             $product_stock->fill([

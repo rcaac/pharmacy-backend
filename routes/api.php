@@ -72,6 +72,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('invoices', 'Api\InvoicePurchaseController@index')->name('api.invoices.index');
     Route::post('invoices', 'Api\InvoicePurchaseController@store')->name('api.invoices.store');
     Route::put('invoices/{id}', 'Api\InvoicePurchaseController@update')->name('api.invoices.update');
+    Route::put('item/invoices/{id}', 'Api\InvoicePurchaseController@itemUpdate')->name('api.invoices.itemUpdate');
     Route::post('invoices/destroy', 'Api\InvoicePurchaseController@destroy')->name('api.invoices.destroy');
     Route::post('invoices/purchase', 'Api\InvoicePurchaseController@destroyInvoicePurchase')->name('api.ticket.destroyInvoicePurchase');
 
