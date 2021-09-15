@@ -356,71 +356,6 @@ class InvoicePurchaseController extends Controller
                 'person_id'   => $person->id
             ])->save();
 
-            $invoice_purchase->fill([
-                'number'                    => request('number'),
-                'date'                      => Carbon::now(),
-                'subtotal'                  => request('subtotal'),
-                'total'                     => request('total'),
-                'created_by'                => $this->getPersonId(),
-                'condition'                 => '1',
-                'supplier_id'               => $supplier->id,
-                'state_invoice_purchase_id' => '1',
-                'type_invoice_purchase_id'  => request('type_invoice_purchase_id')
-            ])->save();
-
-            foreach($purchases as $purchase) {
-
-                $product = Product::findOrFail($purchase['id']);
-
-                $product->fill([
-                    'buy_unit'             => $purchase['product']['buy_unit'],
-                    'buy_blister'          => $purchase['product']['buy_blister'],
-                    'buy_box'              => $purchase['product']['buy_box'],
-                    'sale_unit'            => $purchase['product']['sale_unit'],
-                    'sale_blister'         => $purchase['product']['sale_blister'],
-                    'sale_box'             => $purchase['product']['sale_box'],
-                    'minimum_sale_unit'    => $purchase['product']['minimum_sale_unit'],
-                    'minimum_sale_blister' => $purchase['product']['minimum_sale_blister'],
-                    'minimum_sale_box'     => $purchase['product']['minimum_sale_box'],
-                ])->save();
-
-                $previousStock = DetailInvoicePurchase::where('product_id', $purchase['id'])->value('stock_quantity');
-                $currentStock = (int)$previousStock + (int)$purchase['quantity'];
-
-                Kardex::create([
-                    'date'               => request('date'),
-                    'quantity'           => (int)$purchase['quantity'],
-                    'previousStock'      => (int)$previousStock,
-                    'currentStock'       => $currentStock,
-                    'voucher'            => request('number'),
-                    'product_id'         => $purchase['id'],
-                    'area_assignment_id' => request('area_assignment_id'),
-                    'movement_id'        => '1',
-                    'entity_id'          => request('entity_id'),
-                ]);
-
-                ProductStock::create([
-                    'stock'      => (int)$previousStock + (int)$purchase['quantity'],
-                    'entity_id'  => request('entity_id'),
-                    'product_id' => $purchase['id']
-                ]);
-
-                DetailInvoicePurchase::create([
-                    'lot'                 => $purchase['lot'],
-                    'expiration_date'     => $purchase['expiration_date'],
-                    'quantity'            => (int)$purchase['quantity'],
-                    'stock_quantity'      => (int)$purchase['quantity'],
-                    'buy_unit'            => $purchase['buy_unit'],
-                    'sale_unit'           => $purchase['sale_unit'],
-                    'total'               => $purchase['total'],
-                    'created_by'          => $this->getPersonId(),
-                    'condition'           => '1',
-                    'product_id'          => $purchase['id'],
-                    'invoice_purchase_id' => $invoice_purchase->id,
-                    'entity_id'           => request('entity_id'),
-                ]);
-            }
-
             DB::commit();
 
         }catch(\Exception $e){
@@ -442,56 +377,22 @@ class InvoicePurchaseController extends Controller
         try{
             DB::beginTransaction();
 
-            $invoice_purchase->fill([
-                'number'                    => request('number'),
-                'date'                      => Carbon::now(),
-                'subtotal'                  => request('subtotal'),
-                'total'                     => request('total'),
-                'created_by'                => $this->getPersonId(),
-                'condition'                 => '1',
-                'supplier_id'               => $supplier->id,
-                'state_invoice_purchase_id' => '1',
-                'type_invoice_purchase_id'  => request('type_invoice_purchase_id')
-            ])->save();
+            $quantity = DetailInvoicePurchase::where('id', $purchase['id'])->value('quantity');
 
+            $quantity_stock = DetailInvoicePurchase::where('id', $purchase['id'])->value('stock_quantity');
 
-
-
-
-                $product = Product::findOrFail($purchase['product']['id']);
-
-                $product->fill([
-                    'buy_unit'             => $purchase['product']['buy_unit'],
-                    'buy_blister'          => $purchase['product']['buy_blister'],
-                    'buy_box'              => $purchase['product']['buy_box'],
-                    'sale_unit'            => $purchase['product']['sale_unit'],
-                    'sale_blister'         => $purchase['product']['sale_blister'],
-                    'sale_box'             => $purchase['product']['sale_box'],
-                    'minimum_sale_unit'    => $purchase['product']['minimum_sale_unit'],
-                    'minimum_sale_blister' => $purchase['product']['minimum_sale_blister'],
-                    'minimum_sale_box'     => $purchase['product']['minimum_sale_box'],
+            if ($quantity == $quantity_stock) {
+                $invoice_purchase->fill([
+                    'number'                    => request('number'),
+                    'date'                      => Carbon::now(),
+                    'subtotal'                  => request('subtotal'),
+                    'total'                     => request('total'),
+                    'created_by'                => $this->getPersonId(),
+                    'condition'                 => '1',
+                    'supplier_id'               => $supplier->id,
+                    'state_invoice_purchase_id' => '1',
+                    'type_invoice_purchase_id'  => request('type_invoice_purchase_id')
                 ])->save();
-
-                $previousStock = DetailInvoicePurchase::where('product_id', $purchase['id'])->value('stock_quantity');
-                $currentStock = (int)$previousStock + (int)$purchase['quantity'];
-
-                Kardex::create([
-                    'date'               => request('date'),
-                    'quantity'           => (int)$purchase['quantity'],
-                    'previousStock'      => (int)$previousStock,
-                    'currentStock'       => $currentStock,
-                    'voucher'            => request('number'),
-                    'product_id'         => $purchase['id'],
-                    'area_assignment_id' => request('area_assignment_id'),
-                    'movement_id'        => '1',
-                    'entity_id'          => request('entity_id'),
-                ]);
-
-                ProductStock::create([
-                    'stock'      => (int)$previousStock + (int)$purchase['quantity'],
-                    'entity_id'  => request('entity_id'),
-                    'product_id' => $purchase['id']
-                ]);
 
                 $detail_invoice_purchase = DetailInvoicePurchase::findOrFail($purchase['id']);
 
@@ -509,6 +410,42 @@ class InvoicePurchaseController extends Controller
                     'entity_id'           => request('entity_id'),
                 ])->save();
 
+                $previousStock = ProductStock::where('product_id', $purchase['product_id'])
+                    ->where('entity_id', $this->getEntity())
+                    ->value('stock');
+
+                $stock = DetailInvoicePurchase::where('product_id', $purchase['product_id'])
+                    ->where('condition', 1)
+                    ->where('stock_quantity', '>', 0)
+                    ->where('entity_id', $this->getEntity())
+                    ->value(DB::raw('SUM(stock_quantity)'));
+
+                Kardex::create([
+                    'date'               => request('date'),
+                    'quantity'           => (int)$purchase['quantity'],
+                    'previousStock'      => (int)$previousStock,
+                    'currentStock'       => (int)$stock,
+                    'voucher'            => request('number'),
+                    'product_id'         => $purchase['id'],
+                    'area_assignment_id' => request('area_assignment_id'),
+                    'movement_id'        => '4',
+                    'entity_id'          => request('entity_id'),
+                ]);
+
+                $product_stock_id = ProductStock::where('product_id', $purchase['product_id'])
+                    ->where('entity_id', $this->getEntity())
+                    ->value('id');
+
+                $product_stock = ProductStock::findOrFail($product_stock_id);
+
+                $product_stock->fill([
+                    'stock'      => $stock,
+                    'entity_id'  => $this->getEntity(),
+                    'product_id' => $purchase['product_id']
+                ])->save();
+            }else {
+                return response()->json(["message" => "Este producto ya ha sido vendido"],200);
+            }
 
             DB::commit();
 
@@ -516,7 +453,7 @@ class InvoicePurchaseController extends Controller
 
         }catch(\Exception $e){
             DB::rollBack();
-            return response()->json($e->getTraceAsString());
+            return response()->json($e->getMessage());
         }
     }
 

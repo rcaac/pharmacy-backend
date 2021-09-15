@@ -118,6 +118,7 @@ class ProductController extends Controller
     {
         return Validator::make($request, [
             'name'                  => 'required',
+            'barcode'               => 'unique',
             'maximum_stock'         => 'required',
             'minimum_stock'         => 'required',
             'box_quantity'          => 'required',
@@ -139,6 +140,7 @@ class ProductController extends Controller
         ],
         [
             'name.required'                  => 'Este campo es requerido',
+            'barcode.unique'                 => 'Este campo es único',
             'maximum_stock.required'         => 'Este campo es requerido',
             'minimum_stock.required'         => 'Este campo es requerido',
             'box_quantity.required'          => 'Este campo es requerido',
