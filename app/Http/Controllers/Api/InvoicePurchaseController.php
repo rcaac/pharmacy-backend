@@ -384,7 +384,8 @@ class InvoicePurchaseController extends Controller
             if ($quantity == $quantity_stock) {
                 $invoice_purchase->fill([
                     'number'                    => request('number'),
-                    'date'                      => Carbon::now(),
+
+                    'date'                      => Carbon::parse($invoice_purchase['date']),
                     'subtotal'                  => request('subtotal'),
                     'total'                     => request('total'),
                     'created_by'                => $this->getPersonId(),
@@ -396,11 +397,23 @@ class InvoicePurchaseController extends Controller
 
                 $detail_invoice_purchase = DetailInvoicePurchase::findOrFail($purchase['id']);
 
+                if (strpos($purchase['quantity'], 'F') !== false) {
+                    $quantities = explode("F", $purchase['quantity']);
+
+                    for ($i = 0; $i < count($quantities); $i++) {
+                        $first = $quantities[0];
+                        $last = $quantities[1];
+                    }
+                    $quantity = (int)$first * (int)$purchase['product']['box_quantity'] + (int)$last;
+                }else {
+                    $quantity = (int)$purchase['quantity'];
+                }
+
                 $detail_invoice_purchase->fill([
                     'lot'                 => $purchase['lot'],
-                    'expiration_date'     => $purchase['expiration_date'],
-                    'quantity'            => (int)$purchase['quantity'],
-                    'stock_quantity'      => (int)$purchase['quantity'],
+                    'expiration_date'     => Carbon::parse($purchase['expiration_date'])->endOfMonth(),
+                    'quantity'            => $quantity,
+                    'stock_quantity'      => $quantity,
                     'buy_unit'            => $purchase['buy_unit'],
                     'sale_unit'           => $purchase['sale_unit'],
                     'total'               => $purchase['total'],
@@ -422,7 +435,7 @@ class InvoicePurchaseController extends Controller
 
                 Kardex::create([
                     'date'               => request('date'),
-                    'quantity'           => (int)$purchase['quantity'],
+                    'quantity'           => $quantity,
                     'previousStock'      => (int)$previousStock,
                     'currentStock'       => (int)$stock,
                     'voucher'            => request('number'),
