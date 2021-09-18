@@ -14,7 +14,9 @@ class ReportController
 {
     public function getReportBox($id): JsonResponse
     {
-        $totalVentas=TicketInvoice::sum('total')->where('ticket_invoices.cash_id',$id)->get();
+        //$totalVentas=TicketInvoice::selectRaw('sum(total) as total')->where('ticket_invoices.cash_id',$id)->get();
+
+
         $responsable = InvoicePurchase::select(
 
         )
@@ -41,7 +43,7 @@ class ReportController
             [
                 'details' => $details,
                 'responsable' => $responsable,
-                'totalVentas' => $totalVentas
+                //'totalVentas' => $totalVentas
             ]
         );
     }
