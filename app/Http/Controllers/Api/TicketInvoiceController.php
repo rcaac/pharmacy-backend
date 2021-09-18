@@ -97,16 +97,16 @@ class TicketInvoiceController extends Controller
             $replace = str_replace("*", " ", $search);
             $result = ltrim($replace);
             $products = $products->whereHas('generic', function($query) use ($result) {
-                $query->where("name", "LIKE","%$result%");
+                $query->where("name", "LIKE","$result%");
             });
         }else if (strpos($search, '/') !== false) {
             $replace = str_replace("/", " ", $search);
             $result = ltrim($replace);
             $products = $products->whereHas('category', function($query) use ($result) {
-                $query->where("name", "LIKE","%$result%");
+                $query->where("name", "LIKE","$result%");
             });
         }else {
-            $products = $products->where('name', 'LIKE', "%$search%");
+            $products = $products->where('name', 'LIKE', "$search%");
         }
 
         $products = $products->get();
