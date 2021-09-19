@@ -84,13 +84,6 @@ class TicketInvoiceController extends Controller
                 $query->where('entity_id', $entity);
             }
         ])
-
-       /* $products = DB::table('products')
-        ->join('detail_invoice_purchase','detail_invoice_purchase.product_id','=','products.id')
-        ->select('laboratory','generic','category','presentation','location')
-        ->get()*/
-
-
         ->where('condition', '1');
 
         if (strpos($search, '*') !== false) {
@@ -106,11 +99,10 @@ class TicketInvoiceController extends Controller
                 $query->where("name", "LIKE","%$result%");
             });
         }else {
-            $products = $products->where('name', 'LIKE', "%$search%");
+            $products = $products->where('name', 'LIKE', "$search%");
         }
 
         $products = $products->get();
-
 
         return response()->json(
             [
@@ -123,12 +115,23 @@ class TicketInvoiceController extends Controller
     public function listProductBarcode($search): JsonResponse
     {
         $entity = $this->getEntity();
-        $products = Product::with(['laboratory', 'generic', 'category', 'presentation', 'location', 'stock' => function($query) use ($entity){
+        $products = Product::with([
+            'laboratory',
+            'generic',
+            'category',
+            'presentation',
+            'location',
+            'stock' => function($query) use ($entity){
             $query->where('entity_id', $entity);
-        }])
-            ->where('condition', '1')
-            ->where('barcode', $search)
-            ->get();
+            },
+            'details' => function($query) use ($entity){
+                $query->where('stock_quantity', '>', 0);
+                $query->where('entity_id', $entity);
+            }
+        ])
+        ->where('condition', '1')
+        ->where('barcode', $search)
+        ->get();
 
         return response()->json(
             [
@@ -365,7 +368,6 @@ class TicketInvoiceController extends Controller
         $customer = Customer::findOrFail(request('customer_id'));
 
         $sales = request('sales');
-
 
         try{
             DB::beginTransaction();

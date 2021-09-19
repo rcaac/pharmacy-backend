@@ -100,7 +100,7 @@ class InvoicePurchaseController extends Controller
             'presentation',
             'location',
             'stock' => function($query){
-            $query->where('entity_id', request('entity_id'));
+                $query->where('entity_id', $this->getEntity());
             },
             'details' => function($query){
                 $query->where('stock_quantity', '>', 0);
@@ -121,7 +121,7 @@ class InvoicePurchaseController extends Controller
                 $query->where("name", "LIKE","%$result%");
             })->get();
         }else {
-            $products = $products->where('name', 'LIKE', "%$search%")->get();
+            $products = $products->where('name', 'LIKE', "$search%")->get();
         }
 
         return response()->json(
