@@ -6,6 +6,7 @@ use App\Models\DetailInvoicePurchase;
 use App\Models\DetailTicketInvoice;
 use App\Models\InvoicePurchase;
 
+use App\Models\Person;
 use App\Models\Product;
 use App\Models\TicketInvoice;
 use App\Models\User;
@@ -21,11 +22,11 @@ class ReportController
             ->value(DB::raw('SUM(total)'));
 
 
-        $responsable = InvoicePurchase::select(
+        $responsable = Person::select(
 
         )
-            ->join('persons','persons.id','=','invoice_purchases.created_by')
-            ->where('invoice_purchases.id',$id)
+            ->join('cashes','persons.id','=','cashes.created_by')
+            ->where('cashes.id',$id)
             ->get();
 
         $details = DetailTicketInvoice::select(
