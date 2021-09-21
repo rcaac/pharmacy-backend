@@ -102,5 +102,7 @@ Route::middleware('auth:sanctum')->group(function () {
     //************************************ REPORTES ***************************************************************************************
     Route::get('report/box/{id}', 'Api\ReportController@getReportBox')->name('api.box.getReportBox');
     Route::get('report/facturaCompra/{id}', 'Api\ReportController@getReportFacturaCompra')->name('api.facturaCompra.getReportFacturaCompra');
+    Route::get('report/productStock/{id}', 'Api\ReportController@getReportProductStock')->name('api.productStock.getReportProductStock');
+    Route::get('report/comprobanteVenta/{id}', 'Api\ReportController@getReportComprobanteVenta')->name('api.comprobanteVenta.getReportComprobanteVenta');
 });
 
