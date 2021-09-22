@@ -121,7 +121,7 @@ class InvoicePurchaseController extends Controller
                 $query->where("name", "LIKE","%$result%");
             })->get();
         }else {
-            $products = $products->where('name', 'LIKE', "$search%")->get();
+            $products = $products->where('name', 'LIKE', "%$search%")->get();
         }
 
         return response()->json(

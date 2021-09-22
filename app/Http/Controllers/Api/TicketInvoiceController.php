@@ -70,7 +70,38 @@ class TicketInvoiceController extends Controller
     public function listProducts($search): JsonResponse
     {
         $entity = $this->getEntity();
-        $products = Product::with([
+        $products = Product::query();
+        $products = $products->select(
+            'id',
+            'barcode',
+            'name',
+            'short_name',
+            'maximum_stock',
+            'minimum_stock',
+            'box_quantity',
+            'blister_quantity',
+            'presentation_sale',
+            'buy_unit',
+            'buy_blister',
+            'buy_box',
+            'sale_unit',
+            'sale_blister',
+            'sale_box',
+            'minimum_sale_unit',
+            'minimum_sale_blister',
+            'minimum_sale_box',
+            'control_expiration',
+            'control_stock',
+            'control_refrigeration',
+            'control_prescription',
+            'lab_mark_id',
+            'active_principle_id',
+            'therapeutic_action_id',
+            'presentation_id',
+            'location_id',
+            'created_at'
+        )
+            ->with([
             'laboratory',
             'generic',
             'category',
@@ -90,16 +121,16 @@ class TicketInvoiceController extends Controller
             $replace = str_replace("*", " ", $search);
             $result = ltrim($replace);
             $products = $products->whereHas('generic', function($query) use ($result) {
-                $query->where("name", "LIKE","$result%");
+                $query->where("name", "LIKE","%$result%");
             });
         }else if (strpos($search, '/') !== false) {
             $replace = str_replace("/", " ", $search);
             $result = ltrim($replace);
             $products = $products->whereHas('category', function($query) use ($result) {
-                $query->where("name", "LIKE","$result%");
+                $query->where("name", "LIKE","%$result%");
             });
         }else {
-            $products = $products->where('name', 'LIKE', "$search%");
+            $products = $products->where('name', 'LIKE', "%$search%");
         }
 
         $products = $products->get();

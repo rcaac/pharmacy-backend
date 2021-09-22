@@ -109,11 +109,17 @@ class ReportController
             ->where('invoice_purchases.id',$id)
             ->get();*/
 
-        $details = DetailInvoicePurchase::select(
+        /*$users = DB::table('orders')
+            ->select('department', DB::raw('SUM(price) as total_sales'))
+            ->groupBy('department')
+            ->havingRaw('SUM(price) > 2500')
+            ->get();*/
+
+        $details = DB::table('detail_invoice_purchases')->select(
 
             'products.name',
-            'lab_marks.name as lab',
-            'presentations.name as present',
+            DB::raw('lab_marks.name as lab'),
+            DB::raw('presentations.name as present'),
             'detail_invoice_purchases.stock_quantity',
             'detail_invoice_purchases.lot',
             'detail_invoice_purchases.expiration_date',
