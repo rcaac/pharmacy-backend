@@ -130,10 +130,10 @@ class TicketInvoiceController extends Controller
                 $query->where("name", "LIKE","%$result%");
             });
         }else {
-            $products = $products->where('name', 'LIKE', "%$search%");
+            $products = $products->where('name', 'LIKE', "%$search%")->get();
         }
 
-        $products = $products->get();
+        //$products = $products->get();
 
         return response()->json(
             [

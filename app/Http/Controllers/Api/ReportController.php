@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\Cash;
 use App\Models\DetailInvoicePurchase;
 use App\Models\DetailTicketInvoice;
 use App\Models\InvoicePurchase;
@@ -21,6 +22,8 @@ class ReportController
         $totalVentas = TicketInvoice::where('cash_id',$id)
             ->value(DB::raw('SUM(total)'));
 
+        $infoCaja = Cash::select('observations','opening_date', 'closing_date', 'initial_balance' )->where('id',$id)->get();
+
 
         $responsable = Person::select(
 
@@ -36,6 +39,7 @@ class ReportController
             'products.name',
             'detail_ticket_invoices.quantity',
             'detail_ticket_invoices.total',
+            'detail_ticket_invoices.sale_unit',
 
         )
 
@@ -48,24 +52,30 @@ class ReportController
             [
                 'details' => $details,
                 'responsable' => $responsable,
-                'totalVentas' => $totalVentas
+                'totalVentas' => $totalVentas,
+                'infoCaja'=> $infoCaja
             ]
         );
     }
 
     public function getReportFacturaCompra($id): JsonResponse
     {
-        $responsable = InvoicePurchase::select(
 
+
+        $comprobante = InvoicePurchase::select(
+            'invoice_purchases.date',
+            'invoice_purchases.subtotal',
+            'invoice_purchases.total',
+            'invoice_purchases.created_at',
+            'invoice_purchases.number',
             'persons.firstName',
             'persons.lastName',
+            'type_invoice_purchases.description'
         )
             ->join('persons','persons.id','=','invoice_purchases.created_by')
+            ->join('type_invoice_purchases','type_invoice_purchases.id','=','invoice_purchases.type_invoice_purchase_id')
             ->where('invoice_purchases.id',$id)
             ->get();
-
-
-
 
         $details = InvoicePurchase::select(
             'invoice_purchases.number',
@@ -91,7 +101,7 @@ class ReportController
         return response()->json(
             [
                 'details'     => $details,
-                'responsable' => $responsable,
+                'comprobante' => $comprobante,
 
 
             ]
