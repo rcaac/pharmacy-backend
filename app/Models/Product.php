@@ -97,7 +97,7 @@ class Product extends Model
             )
             ->with(['laboratory', 'generic', 'category', 'presentation', 'location', 'stock'])
             ->where('condition', '1')
-            ->orderByDesc('id');
+            ->orderBy('name');
         if ($search && strlen($search) > 0) {
             $products->where('name', 'LIKE', "%$search%");
         }
