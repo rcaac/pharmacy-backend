@@ -68,6 +68,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //*********************************************COMPRAS**************************************************************
     Route::get('invoices/products/{search}', 'Api\InvoicePurchaseController@listProducts')->name('api.invoices.listProducts')->where('search', '.*');;
+    Route::get('invoices/barcode/{search}', 'Api\InvoicePurchaseController@listProductBarcode')->name('api.invoices.listProductBarcode');
     Route::get('invoices/type', 'Api\InvoicePurchaseController@listTypeInvoicePurchases')->name('api.invoices.listTypeInvoicePurchases');
     Route::get('invoices', 'Api\InvoicePurchaseController@index')->name('api.invoices.index');
     Route::post('invoices', 'Api\InvoicePurchaseController@store')->name('api.invoices.store');

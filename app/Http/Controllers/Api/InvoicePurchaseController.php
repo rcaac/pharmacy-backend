@@ -62,6 +62,7 @@ class InvoicePurchaseController extends Controller
 
     public function listProducts($search): JsonResponse
     {
+        $entity = $this->getEntity();
         $products = Product::query();
         $products = $products->select(
             'id',
@@ -99,11 +100,12 @@ class InvoicePurchaseController extends Controller
             'category',
             'presentation',
             'location',
-            'stock' => function($query){
-                $query->where('entity_id', $this->getEntity());
+            'stock' => function($query) use ($entity){
+                $query->where('entity_id', $entity);
             },
-            'details' => function($query){
+            'details' => function($query) use ($entity){
                 $query->where('stock_quantity', '>', 0);
+                $query->where('entity_id', $entity);
             }
         ])
         ->where('condition', '1');
@@ -145,6 +147,35 @@ class InvoicePurchaseController extends Controller
             );
         }
         abort(401);
+    }
+
+    public function listProductBarcode($search): JsonResponse
+    {
+        $entity = $this->getEntity();
+        $products = Product::with([
+            'laboratory',
+            'generic',
+            'category',
+            'presentation',
+            'location',
+            'stock' => function($query) use ($entity){
+                $query->where('entity_id', $entity);
+            },
+            'details' => function($query) use ($entity){
+                $query->where('stock_quantity', '>', 0);
+                $query->where('entity_id', $entity);
+            }
+        ])
+            ->where('condition', '1')
+            ->where('barcode', $search)
+            ->get();
+
+        return response()->json(
+            [
+                "success"  => true,
+                "data"     => $products
+            ]
+        );
     }
 
     private function validation($request): \Illuminate\Contracts\Validation\Validator

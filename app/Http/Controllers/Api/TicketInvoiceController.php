@@ -70,6 +70,7 @@ class TicketInvoiceController extends Controller
     public function listProducts($search): JsonResponse
     {
         $entity = $this->getEntity();
+<<<<<<< Updated upstream
         $products = Product::query();
         $products = $products->select(
             'id',
@@ -102,6 +103,10 @@ class TicketInvoiceController extends Controller
             'created_at'
         )
             ->with([
+=======
+        $products = Product::with([
+
+>>>>>>> Stashed changes
             'laboratory',
             'generic',
             'category',
@@ -115,6 +120,16 @@ class TicketInvoiceController extends Controller
                 $query->where('entity_id', $entity);
             }
         ])
+<<<<<<< Updated upstream
+=======
+
+       /* $products = DB::table('products')
+        ->join('detail_invoice_purchase','detail_invoice_purchase.product_id','=','products.id')
+        ->select('laboratory','generic','category','presentation','location')
+        ->get()*/
+
+
+>>>>>>> Stashed changes
         ->where('condition', '1');
 
         if (strpos($search, '*') !== false) {
