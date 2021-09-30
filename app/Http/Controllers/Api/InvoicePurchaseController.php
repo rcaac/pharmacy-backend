@@ -507,6 +507,16 @@ class InvoicePurchaseController extends Controller
         $product_stock_id = ProductStock::where('product_id', request('product_id'))->value('id');
         $product_stock = ProductStock::findOrFail($product_stock_id );
 
+        $invoice_purchase_id = DetailInvoicePurchase::where('id',request('id'))->value('invoice_purchase_id');
+        $invoice_purchase = InvoicePurchase::findOrFail($invoice_purchase_id );
+
+        $costoModificado = InvoicePurchase::select(
+            DB::raw('invoice_purchases.total-detail_invoice_purchases.total as totalmodificado')
+        )
+            ->join('detail_invoice_purchases','invoice_purchases.id','=','detail_invoice_purchases.invoice_purchase_id' )
+            ->where('detail_invoice_purchases.id',request('id'))
+            ->value('totalmodificado');
+
         if (!$detail) {
             return response()->json(["message" => "Producto no encontrado"], 404);
         }
@@ -522,6 +532,13 @@ class InvoicePurchaseController extends Controller
                 ]
             );
         }else {
+
+            $invoice_purchase->fill([
+                'total' => $costoModificado,
+                'subtotal' => $costoModificado,
+            ])->save();
+
+
             $detail->fill([
                 'condition' => '0'
             ])->save();
