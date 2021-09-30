@@ -540,7 +540,8 @@ class InvoicePurchaseController extends Controller
 
 
             $detail->fill([
-                'condition' => '0'
+                'condition' => '0',
+                'stock_quantity'=>'0'
             ])->save();
 
             $product_stock->fill([
