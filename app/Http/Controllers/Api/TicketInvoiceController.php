@@ -70,7 +70,6 @@ class TicketInvoiceController extends Controller
     public function listProducts($search): JsonResponse
     {
         $entity = $this->getEntity();
-<<<<<<< Updated upstream
         $products = Product::query();
         $products = $products->select(
             'id',
@@ -103,52 +102,36 @@ class TicketInvoiceController extends Controller
             'created_at'
         )
             ->with([
-=======
-        $products = Product::with([
-
->>>>>>> Stashed changes
-            'laboratory',
-            'generic',
-            'category',
-            'presentation',
-            'location',
-            'stock' => function($query) use ($entity){
-                $query->where('entity_id', $entity);
-            },
-            'details' => function($query) use ($entity){
-                $query->where('stock_quantity', '>', 0);
-                $query->where('entity_id', $entity);
-            }
-        ])
-<<<<<<< Updated upstream
-=======
-
-       /* $products = DB::table('products')
-        ->join('detail_invoice_purchase','detail_invoice_purchase.product_id','=','products.id')
-        ->select('laboratory','generic','category','presentation','location')
-        ->get()*/
-
-
->>>>>>> Stashed changes
-        ->where('condition', '1');
+                'laboratory',
+                'generic',
+                'category',
+                'presentation',
+                'location',
+                'stock' => function($query) use ($entity){
+                    $query->where('entity_id', $entity);
+                },
+                'details' => function($query) use ($entity){
+                    $query->where('stock_quantity', '>', 0);
+                    $query->where('entity_id', $entity);
+                }
+            ])
+            ->where('condition', '1');
 
         if (strpos($search, '*') !== false) {
             $replace = str_replace("*", " ", $search);
             $result = ltrim($replace);
             $products = $products->whereHas('generic', function($query) use ($result) {
                 $query->where("name", "LIKE","%$result%");
-            });
+            })->get();
         }else if (strpos($search, '/') !== false) {
             $replace = str_replace("/", " ", $search);
             $result = ltrim($replace);
             $products = $products->whereHas('category', function($query) use ($result) {
                 $query->where("name", "LIKE","%$result%");
-            });
+            })->get();
         }else {
             $products = $products->where('name', 'LIKE', "%$search%")->orderBy('name')->get();
         }
-
-        //$products = $products->get();
 
         return response()->json(
             [
