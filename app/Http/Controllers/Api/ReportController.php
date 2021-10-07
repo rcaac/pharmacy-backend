@@ -130,7 +130,7 @@ class ReportController
             'products.name',
             DB::raw('lab_marks.name as lab'),
             DB::raw('presentations.name as present'),
-            'detail_invoice_purchases.stock_quantity',
+            DB::raw("if(products.box_quantity>1, concat_ws('F',(detail_invoice_purchases.stock_quantity DIV products.box_quantity),(detail_invoice_purchases.stock_quantity MOD products.box_quantity)), detail_invoice_purchases.stock_quantity) AS stock"),
             'detail_invoice_purchases.lot',
             'detail_invoice_purchases.expiration_date',
 
@@ -139,7 +139,7 @@ class ReportController
             ->join('products', 'products.id', '=', 'detail_invoice_purchases.product_id')
             ->join('lab_marks', 'products.lab_mark_id', '=', 'lab_marks.id')
             ->join('presentations', 'products.presentation_id', '=', 'presentations.id')
-            ->where('detail_invoice_purchases.entity_id', $id)
+            ->where('detail_invoice_purchases.entity_id', $id)->where('detail_invoice_purchases.condition','!=','0')->where('detail_invoice_purchases.stock_quantity','!=','0')
             ->orderBy('products.name', 'asc')
             ->get();
 
@@ -147,6 +147,57 @@ class ReportController
             [
                 'details'     => $details,
                 /*'responsable' => $responsable,*/
+
+
+            ]
+        );
+    }
+    public function getReportProductStockValorizado($id): JsonResponse
+    {
+
+        $details = DB::table('detail_invoice_purchases')->select(
+
+            'products.name',
+            DB::raw('lab_marks.name as lab'),
+            DB::raw('presentations.name as present'),
+            'detail_invoice_purchases.buy_unit',
+            'detail_invoice_purchases.sale_unit',
+            'detail_invoice_purchases.lot',
+            'detail_invoice_purchases.expiration_date',
+            DB::raw("if(products.box_quantity>1, concat_ws('F',(detail_invoice_purchases.stock_quantity DIV products.box_quantity),(detail_invoice_purchases.stock_quantity MOD products.box_quantity)), detail_invoice_purchases.stock_quantity) AS stockFormat"),
+            DB::raw("cast((detail_invoice_purchases.stock_quantity * detail_invoice_purchases.buy_unit) as decimal(8,2)) as totalCompras"),
+            DB::raw("cast(if(products.box_quantity>1, ((detail_invoice_purchases.stock_quantity DIV products.box_quantity)* detail_invoice_purchases.sale_box)+((detail_invoice_purchases.stock_quantity MOD products.box_quantity)*detail_invoice_purchases.sale_unit),detail_invoice_purchases.sale_unit * detail_invoice_purchases.stock_quantity)as decimal(8,2)) as totalventas")
+
+        )
+
+            ->join('products', 'products.id', '=', 'detail_invoice_purchases.product_id')
+            ->join('lab_marks', 'products.lab_mark_id', '=', 'lab_marks.id')
+            ->join('presentations', 'products.presentation_id', '=', 'presentations.id')
+            ->where('detail_invoice_purchases.entity_id', $id)->where('detail_invoice_purchases.condition','!=','0')->where('detail_invoice_purchases.stock_quantity','!=','0')
+            ->orderBy('products.name', 'asc')
+            ->get();
+
+        $utilidad= DB::table('detail_invoice_purchases')->select(
+
+            DB::raw("cast(SUM(detail_invoice_purchases.stock_quantity * detail_invoice_purchases.buy_unit) as decimal(8,2)) as totalCompras"),
+            DB::raw("cast(SUM(if(products.box_quantity>1, ((detail_invoice_purchases.stock_quantity DIV products.box_quantity)* detail_invoice_purchases.sale_box)+((detail_invoice_purchases.stock_quantity MOD products.box_quantity)*detail_invoice_purchases.sale_unit),detail_invoice_purchases.sale_unit * detail_invoice_purchases.stock_quantity))as decimal(8,2)) as totalVentas"),
+            DB::raw("cast((SUM(if(products.box_quantity>1, ((detail_invoice_purchases.stock_quantity DIV products.box_quantity)* detail_invoice_purchases.sale_box)+((detail_invoice_purchases.stock_quantity MOD products.box_quantity)*detail_invoice_purchases.sale_unit),detail_invoice_purchases.sale_unit * detail_invoice_purchases.stock_quantity))- cast(SUM(detail_invoice_purchases.stock_quantity * detail_invoice_purchases.buy_unit) as decimal(8,2)))as decimal(8,2)) as utilidad")
+
+        )
+
+            ->join('products', 'products.id', '=', 'detail_invoice_purchases.product_id')
+            ->join('lab_marks', 'products.lab_mark_id', '=', 'lab_marks.id')
+            ->join('presentations', 'products.presentation_id', '=', 'presentations.id')
+            ->where('detail_invoice_purchases.entity_id', $id)->where('detail_invoice_purchases.condition','!=','0')->where('detail_invoice_purchases.stock_quantity','!=','0')
+            ->orderBy('products.name', 'asc')
+            ->get();
+
+
+
+        return response()->json(
+            [
+                'details'     => $details,
+                'utilidad'    => $utilidad,
 
 
             ]
