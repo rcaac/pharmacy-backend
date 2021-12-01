@@ -139,15 +139,18 @@ class ReportController
             ->join('products', 'products.id', '=', 'detail_invoice_purchases.product_id')
             ->join('lab_marks', 'products.lab_mark_id', '=', 'lab_marks.id')
             ->join('presentations', 'products.presentation_id', '=', 'presentations.id')
-            ->where('detail_invoice_purchases.entity_id', $id)->where('detail_invoice_purchases.condition','!=','0')->where('detail_invoice_purchases.stock_quantity','!=','0')
+            ->where('detail_invoice_purchases.entity_id', $id)->where('detail_invoice_purchases.condition','!=','0')
             ->orderBy('products.name', 'asc')
             ->get();
+
+
+        $sucursal = DB::table('entities')->select('name')->where('id', $id)->get();
 
         return response()->json(
             [
                 'details'     => $details,
                 /*'responsable' => $responsable,*/
-
+                'sucursal'    => $sucursal,
 
             ]
         );
@@ -192,13 +195,13 @@ class ReportController
             ->orderBy('products.name', 'asc')
             ->get();
 
-
+        $sucursal = DB::table('entities')->select('name')->where('id', $id)->get();
 
         return response()->json(
             [
                 'details'     => $details,
                 'utilidad'    => $utilidad,
-
+                'sucursal'    => $sucursal,
 
             ]
         );
