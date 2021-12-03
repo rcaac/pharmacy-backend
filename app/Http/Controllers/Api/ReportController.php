@@ -33,6 +33,7 @@ class ReportController
             ->get();
 
         $details = DetailTicketInvoice::select(
+
             'ticket_invoices.prefijo',
             'ticket_invoices.numero',
             'ticket_invoices.date',
@@ -40,10 +41,12 @@ class ReportController
             'detail_ticket_invoices.quantity',
             'detail_ticket_invoices.total',
             'detail_ticket_invoices.sale_unit',
+            DB::raw('type_buys.name  as nameTypeBuy'),
 
         )
 
            ->join('ticket_invoices', 'ticket_invoices.id', '=', 'detail_ticket_invoices.ticket_invoice_id')
+           ->join('type_buys', 'type_buys.id', '=', 'ticket_invoices.type_buy_id')
            ->join('products', 'products.id', '=', 'detail_ticket_invoices.product_id')
            ->where('ticket_invoices.cash_id', $id)
            ->get();
