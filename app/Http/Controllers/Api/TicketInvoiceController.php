@@ -249,15 +249,15 @@ class TicketInvoiceController extends Controller
             $type    = TypeTicketInvoice::where("id",request('type_ticket_invoice_id'))->value("name");
             $prefijo = "$type[0]" . "$year";
 
-            $cuantity = TicketInvoice::where('type_ticket_invoice_id', request('type_ticket_invoice_id'))
+            $quantity = TicketInvoice::where('type_ticket_invoice_id', request('type_ticket_invoice_id'))
                 ->where(DB::raw('YEAR(created_at)'), Carbon::now()->year)
                 ->value(DB::raw('MAX(numero)'));
 
-            if ( $cuantity == null){
+            if ( $quantity == null){
                 $count = str_pad(1, 6, "0", STR_PAD_LEFT);
             }
             else {
-                $count = str_pad($cuantity+1, 6, "0", STR_PAD_LEFT);
+                $count = str_pad($quantity+1, 6, "0", STR_PAD_LEFT);
             }
 
             $numero = str_pad($count, 6, "0", STR_PAD_LEFT);
