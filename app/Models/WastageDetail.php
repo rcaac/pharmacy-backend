@@ -28,9 +28,36 @@ class WastageDetail extends Model
 
     public function scopeFiltered(Builder $builder): Builder
     {
-        return $builder
+        $date = request('date') ?? null;
+        $reason = request('wastage_reason_id') ?? null;
+
+        $wastages = $builder
+            ->select(
+                'quantity',
+                'cost_unit',
+                'cost_total',
+                'lot',
+                'date_expiration',
+                'condition',
+                'entity_id',
+                'product_id',
+                'wastage_id',
+                'detail_invoice_purchase_id'
+            )
             ->with(['wastage', 'details'])
             ->where('condition', '!=', 0);
+
+        if ($date && strlen($date) > 0) {
+            $wastages->where('date_expiration', 'LIKE', "%$date%");
+        }
+
+        if ($reason && strlen($reason) > 0) {
+            $wastages->whereHas('wastage' , function ($query) use ($reason) {
+                $query->where('wastage_reason_id', $reason);
+            });
+        }
+
+        return $wastages;
     }
 
     public function wastage(): BelongsTo

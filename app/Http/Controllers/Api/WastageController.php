@@ -136,6 +136,36 @@ class WastageController extends Controller
         abort(401);
     }
 
+    public function searchDate()
+    {
+        if (request()->wantsJson()) {
+            $itemsPerPage = (int) request('itemsPerPage');
+            $assignments = WastageDetail::filtered();
+            return response()->json(
+                [
+                    "success"  => true,
+                    "data"     => $assignments->paginate($itemsPerPage != 'undefined' ? $itemsPerPage : 10),
+                ]
+            );
+        }
+        abort(401);
+    }
+
+    public function searchReason()
+    {
+        if (request()->wantsJson()) {
+            $itemsPerPage = (int) request('itemsPerPage');
+            $assignments = WastageDetail::filtered();
+            return response()->json(
+                [
+                    "success"  => true,
+                    "data"     => $assignments->paginate($itemsPerPage != 'undefined' ? $itemsPerPage : 10),
+                ]
+            );
+        }
+        abort(401);
+    }
+
     private function validation($request): \Illuminate\Contracts\Validation\Validator
     {
         return Validator::make($request, [

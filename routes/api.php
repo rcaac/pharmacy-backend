@@ -105,7 +105,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('report/facturaCompra/{id}', 'Api\ReportController@getReportFacturaCompra')->name('api.facturaCompra.getReportFacturaCompra');
     Route::get('report/productStock/{id}', 'Api\ReportController@getReportProductStock')->name('api.productStock.getReportProductStock');
     Route::get('report/comprobanteVenta/{id}', 'Api\ReportController@getReportComprobanteVenta')->name('api.comprobanteVenta.getReportComprobanteVenta');
-
     Route::get('report/productStockValorizado/{id}', 'Api\ReportController@getReportProductStockValorizado')->name('api.productStockValorizado.getReportProductStockValorizado');
 
     //************************************* MERMAS ****************************************************************************************
@@ -114,6 +113,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('wastage', 'Api\WastageController@index')->name('api.wastage.index');
     Route::post('wastage', 'Api\WastageController@store')->name('api.wastage.store');
     Route::post('wastage/reverse', 'Api\WastageController@reverse')->name('api.wastage.reverse');
-
+    Route::get('wastage/search/date', 'Api\WastageController@searchDate')->name('api.wastage.searchDate');
+    Route::get('wastage/search/reason', 'Api\WastageController@searchReason')->name('api.wastage.searchReason');
 });
 
