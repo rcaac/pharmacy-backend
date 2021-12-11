@@ -15,6 +15,7 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class WastageController extends Controller
 {
@@ -135,12 +136,32 @@ class WastageController extends Controller
         abort(401);
     }
 
+    private function validation($request): \Illuminate\Contracts\Validation\Validator
+    {
+        return Validator::make($request, [
+            'wastage_reason_id' => 'required',
+        ],
+            [
+                'wastage_reason_id.required' => 'Debe de elegir un motivo',
+            ]
+        );
+    }
+
     public function store(): JsonResponse
     {
         $wastages = request('wastages');
 
         try{
             DB::beginTransaction();
+
+            $this->validation(request()->input());
+
+            if ($this->validation(request()->input())->fails()) {
+                return response()->json(array(
+                    'success' => false,
+                    'errors'  => $this->validation(request()->input())->getMessageBag()->toArray()
+                ), 422);
+            }
 
             $wastage_created = Wastage::create([
                 'total'             => request('total'),
