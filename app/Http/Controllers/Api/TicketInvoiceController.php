@@ -313,7 +313,7 @@ class TicketInvoiceController extends Controller
                     'quantity'           => $quantity,
                     'previousStock'      => (int)$previousStock,
                     'currentStock'       => $currentStock,
-                    'voucher'            => $sale['id'],
+                    'voucher'            => $numero,
                     'product_id'         => $sale['id'],
                     'area_assignment_id' => request('area_assignment_id'),
                     'movement_id'        => '2',
