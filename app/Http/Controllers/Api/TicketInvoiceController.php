@@ -502,14 +502,31 @@ class TicketInvoiceController extends Controller
         }
     }
 
-    public function destroy(int $id): JsonResponse
+    public function destroy(): JsonResponse
     {
-        $detail = DetailTicketInvoice::findOrFail($id);
+        $detail = DetailTicketInvoice::findOrFail(request('id'));
+        $product_stock_id = ProductStock::where('product_id', request('product_id'))->value('id');
+        $product_stock = ProductStock::findOrFail($product_stock_id );
+
+
+        $invoice_purchase_id = DetailInvoicePurchase::where('id',request('id'))->value('invoice_purchase_id');
+        $invoice_purchase = InvoicePurchase::findOrFail($invoice_purchase_id );
+
         if (!$detail) {
             return response()->json(["message" => "Persona no encontrada"], 404);
         }
         $detail->fill(['condition' => '0' ])->save();
         return response()->json(["message" => "Compra eliminada"]);
+
+
+
+
+
+
+
+
+
+
     }
 
     private function getIdTicketInvoice($id) {

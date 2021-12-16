@@ -22,8 +22,9 @@ class CreateMovementsTable extends Migration
         });
         DB::table('movements')->insert(array('id'=>'1','name'=>'COMPRA', 'created_at'=>Carbon::now(), 'updated_at'=>Carbon::now()));
         DB::table('movements')->insert(array('id'=>'2','name'=>'VENTA', 'created_at'=>Carbon::now(), 'updated_at'=>Carbon::now()));
-        DB::table('movements')->insert(array('id'=>'3','name'=>'ANULACION', 'created_at'=>Carbon::now(), 'updated_at'=>Carbon::now()));
-        DB::table('movements')->insert(array('id'=>'4','name'=>'EDICION', 'created_at'=>Carbon::now(), 'updated_at'=>Carbon::now()));
+        DB::table('movements')->insert(array('id'=>'3','name'=>'ANULACION COMPRA', 'created_at'=>Carbon::now(), 'updated_at'=>Carbon::now()));
+        DB::table('movements')->insert(array('id'=>'4','name'=>'ANULACION VENTA', 'created_at'=>Carbon::now(), 'updated_at'=>Carbon::now()));
+        DB::table('movements')->insert(array('id'=>'5','name'=>'MERMA', 'created_at'=>Carbon::now(), 'updated_at'=>Carbon::now()));
     }
 
     /**
