@@ -85,7 +85,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('ticket', 'Api\TicketInvoiceController@index')->name('api.ticket.index');
     Route::post('ticket', 'Api\TicketInvoiceController@store')->name('api.ticket.store');
     Route::put('ticket/{id}', 'Api\TicketInvoiceController@update')->name('api.ticket.update');
-    Route::delete('ticket/{id}', 'Api\TicketInvoiceController@destroy')->name('api.ticket.destroy');
+    Route::post('ticket/destroy', 'Api\TicketInvoiceController@destroy')->name('api.ticket.destroy');
     Route::get('ticket/box', 'Api\TicketInvoiceController@getBox')->name('api.ticket.getBox');
     Route::post('ticket/box', 'Api\TicketInvoiceController@boxStore')->name('api.ticket.boxStore');
     Route::get('ticket/sale/invoices', 'Api\TicketInvoiceController@getInvoices')->name('api.ticket.getInvoices');

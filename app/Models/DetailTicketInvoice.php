@@ -21,6 +21,7 @@ class DetailTicketInvoice extends Model
         'created_by',
         'condition',
         'ticket_invoice_id',
+        'detail_invoice_purchase_id',
         'product_id',
         'entity_id'
     ];

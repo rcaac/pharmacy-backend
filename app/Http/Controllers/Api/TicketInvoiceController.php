@@ -329,21 +329,28 @@ class TicketInvoiceController extends Controller
 
                 $sale_unit = number_format($sale['total']/ $quantity ,4);
 
-                DetailTicketInvoice::create([
-                    'lot'               => $sale['lot'],
-                    'expiration_date'   => $sale['details'][0]['expiration_date'],
-                    'quantity'          => $quantity,
-                    'sale_unit'         => $sale_unit,
-                    'sale_blister'      => $sale['sale_blister'],
-                    'sale_box'          => $sale['sale_box'],
-                    'total'             => $sale['total'],
-                    'created_by'        => $this->getPersonId(),
-                    'condition'         => '1',
-                    'product_id'        => $sale['id'],
-                    'ticket_invoice_id' => $ticket_invoice->id,
-                    'entity_id'         => $this->getEntity()
-                ]);
+                $date_now = Carbon::now()->format('Y-m-d');
 
+                $detail_invoice_purchase_id = DetailInvoicePurchase::where('expiration_date', '>', $date_now)->first()
+                    ->where('stock_quantity', '!=', 0)
+                    ->where('product_id', $sale['id'])
+                    ->value('id');
+
+                DetailTicketInvoice::create([
+                    'lot'                        => $sale['lot'],
+                    'expiration_date'            => $sale['details'][0]['expiration_date'],
+                    'quantity'                   => $quantity,
+                    'sale_unit'                  => $sale_unit,
+                    'sale_blister'               => $sale['sale_blister'],
+                    'sale_box'                   => $sale['sale_box'],
+                    'total'                      => $sale['total'],
+                    'created_by'                 => $this->getPersonId(),
+                    'condition'                  => '1',
+                    'product_id'                 => $sale['id'],
+                    'ticket_invoice_id'          => $ticket_invoice->id,
+                    'detail_invoice_purchase_id' => $detail_invoice_purchase_id,
+                    'entity_id'                  => $this->getEntity()
+                ]);
 
                 $date_now = Carbon::now()->format('Y-m-d');
 
@@ -377,7 +384,7 @@ class TicketInvoiceController extends Controller
 
             return response()->json(
                 [
-                    "message"   => "Operación realizada con éxito",
+                    "message"   => "Operación realizada con éxito!!!",
                     "idticktet" => $ticket_invoice->id
                 ],
                 201);
@@ -504,29 +511,59 @@ class TicketInvoiceController extends Controller
 
     public function destroy(): JsonResponse
     {
-        $detail = DetailTicketInvoice::findOrFail(request('id'));
-        $product_stock_id = ProductStock::where('product_id', request('product_id'))->value('id');
-        $product_stock = ProductStock::findOrFail($product_stock_id );
+        $item = request('item');
 
+        try{
+            DB::beginTransaction();
 
-        $invoice_purchase_id = DetailInvoicePurchase::where('id',request('id'))->value('invoice_purchase_id');
-        $invoice_purchase = InvoicePurchase::findOrFail($invoice_purchase_id );
+            $detail_count = DB::table('detail_ticket_invoices')
+                ->select('ticket_invoice_id')
+                ->where('ticket_invoice_id', $item['ticket_invoice_id'])
+                ->get()
+                ->count();
 
-        if (!$detail) {
-            return response()->json(["message" => "Persona no encontrada"], 404);
+            if ($detail_count == 1) {
+                $ticket = TicketInvoice::findOrFail($item['ticket_invoice_id']);
+                $ticket->fill(['condition' => '0'])->save();
+                $detail = DetailTicketInvoice::findOrFail($item['id']);
+                $detail->fill(['condition' => '0' ])->save();
+            } else {
+                $detail = DetailTicketInvoice::findOrFail($item['id']);
+                $detail->fill(['condition' => '0' ])->save();
+            }
+
+            $previousStock = DetailInvoicePurchase::where('id', $item['detail_invoice_purchase_id'])->value('stock_quantity');
+            $currentStock = (int)$previousStock + (int)$item['quantity'];
+
+            $invoices = DetailInvoicePurchase::findOrFail($item['detail_invoice_purchase_id']);
+            $invoices->fill(['stock_quantity' => $currentStock ])->save();
+
+            Kardex::create([
+                'date'               => Carbon::now(),
+                'quantity'           => (int)$item['quantity'],
+                'previousStock'      => (int)$previousStock,
+                'currentStock'       => $currentStock,
+                'voucher'            => $item['product']['id'],
+                'product_id'         => $item['product']['id'],
+                'area_assignment_id' => request('area_assignment_id'),
+                'movement_id'        => '3',
+                'entity_id'          => request('entity_id'),
+            ]);
+
+            ProductStock::create([
+                'stock'      => $currentStock + (int)$item['quantity'],
+                'entity_id'  => request('entity_id'),
+                'product_id' => $item['product']['id']
+            ]);
+
+            DB::commit();
+
+            return response()->json(["message" => "Compra eliminada"], 200);
+
+        }catch(Exception $e){
+            DB::rollBack();
+            return response()->json($e->getMessage());
         }
-        $detail->fill(['condition' => '0' ])->save();
-        return response()->json(["message" => "Compra eliminada"]);
-
-
-
-
-
-
-
-
-
-
     }
 
     private function getIdTicketInvoice($id) {
