@@ -19,8 +19,16 @@ class ReportController
 {
     public function getReportBox($id): JsonResponse
     {
-        $totalVentas = TicketInvoice::where('cash_id',$id)
-            ->value(DB::raw('SUM(total)'));
+        /*$totalVentas = TicketInvoice::where('cash_id',$id)->where('condition','!=','0')
+            ->value(DB::raw('SUM(total)'));*/
+
+        $totalVentas = DetailTicketInvoice::select(
+            DB::raw('sum(detail_ticket_invoices.total) as totalVentas'),
+        )
+            ->join('ticket_invoices', 'ticket_invoices.id', '=', 'detail_ticket_invoices.ticket_invoice_id')
+            ->where('ticket_invoices.cash_id', $id)
+            ->where('detail_ticket_invoices.condition','!=','0')
+            ->get();
 
         $infoCaja = Cash::select('observations','opening_date', 'closing_date', 'initial_balance' )->where('id',$id)->get();
 
@@ -49,6 +57,7 @@ class ReportController
            ->join('type_buys', 'type_buys.id', '=', 'ticket_invoices.type_buy_id')
            ->join('products', 'products.id', '=', 'detail_ticket_invoices.product_id')
            ->where('ticket_invoices.cash_id', $id)
+           ->where('detail_ticket_invoices.condition','!=','0')
            ->get();
 
         return response()->json(

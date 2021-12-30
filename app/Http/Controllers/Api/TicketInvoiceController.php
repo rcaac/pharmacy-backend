@@ -514,7 +514,12 @@ class TicketInvoiceController extends Controller
         $item = request('item');
 
         try{
+
+
             DB::beginTransaction();
+
+            $product_stock_id = ProductStock::where('product_id', $item['product']['id'])->value('id');
+            $product_stock = ProductStock::findOrFail($product_stock_id );
 
             $detail_count = DB::table('detail_ticket_invoices')
                 ->select('ticket_invoice_id')
@@ -532,7 +537,12 @@ class TicketInvoiceController extends Controller
                 $detail->fill(['condition' => '0' ])->save();
             }
 
-            $previousStock = DetailInvoicePurchase::where('id', $item['detail_invoice_purchase_id'])->value('stock_quantity');
+            $previousStock = DetailInvoicePurchase::select(
+                DB::raw('sum(stock_quantity)'),
+                )
+                ->where('product_id', $item['product']['id'])
+                ->value('sum(stock_quantity)');
+
             $currentStock = (int)$previousStock + (int)$item['quantity'];
 
             $invoices = DetailInvoicePurchase::findOrFail($item['detail_invoice_purchase_id']);
@@ -546,15 +556,19 @@ class TicketInvoiceController extends Controller
                 'voucher'            => $item['product']['id'],
                 'product_id'         => $item['product']['id'],
                 'area_assignment_id' => request('area_assignment_id'),
-                'movement_id'        => '3',
+                'movement_id'        => '4',
                 'entity_id'          => request('entity_id'),
             ]);
 
-            ProductStock::create([
+            $product_stock->fill([
+                'stock' => $currentStock,
+            ])->save();
+
+            /*ProductStock::create([
                 'stock'      => $currentStock + (int)$item['quantity'],
                 'entity_id'  => request('entity_id'),
                 'product_id' => $item['product']['id']
-            ]);
+            ]);*/
 
             DB::commit();
 
@@ -700,9 +714,11 @@ class TicketInvoiceController extends Controller
 
     public function boxTotal($id): JsonResponse
     {
-        $total = TicketInvoice::select(DB::raw('SUM(total) as total'))
-            ->where('cash_id', $id)
-            ->groupBy("entity_id")
+        $total = TicketInvoice::select( DB::raw('sum(detail_ticket_invoices.total) as total'))
+            ->join('detail_ticket_invoices', 'ticket_invoices.id', '=', 'detail_ticket_invoices.ticket_invoice_id')
+            ->where('ticket_invoices.cash_id', $id)
+            ->where('detail_ticket_invoices.condition','!=','0')
+            //->groupBy("entity_id")
             ->first();
 
         return response()->json([
@@ -779,11 +795,13 @@ class TicketInvoiceController extends Controller
 
     public function getAmountVoucher(): JsonResponse
     {
-        $ticket = TicketInvoice::select('type_ticket_invoice_id', DB::raw('SUM(total) as total'))
+        $ticket = TicketInvoice::select('ticket_invoices.type_ticket_invoice_id', DB::raw('sum(detail_ticket_invoices.total) as total'))
+            ->join('detail_ticket_invoices', 'ticket_invoices.id', '=', 'detail_ticket_invoices.ticket_invoice_id')
             ->with('type')
-            ->where('entity_id', $this->getEntity())
-            ->where('cash_id', request('cash_id'))
-            ->groupBy('type_ticket_invoice_id')
+            ->where('ticket_invoices.entity_id', $this->getEntity())
+            ->where('ticket_invoices.cash_id', request('cash_id'))
+            ->where('detail_ticket_invoices.condition','!=','0')
+            ->groupBy('ticket_invoices.type_ticket_invoice_id')
             ->get();
 
         return response()->json([
@@ -793,11 +811,13 @@ class TicketInvoiceController extends Controller
 
     public function getAmountPayment(): JsonResponse
     {
-        $ticket = TicketInvoice::select('type_buy_id', DB::raw('SUM(total) as total'))
+        $ticket = TicketInvoice::select('ticket_invoices.type_buy_id', DB::raw('sum(detail_ticket_invoices.total) as total'))
+            ->join('detail_ticket_invoices', 'ticket_invoices.id', '=', 'detail_ticket_invoices.ticket_invoice_id')
             ->with('buy')
-            ->where('entity_id', $this->getEntity())
-            ->where('cash_id', request('cash_id'))
-            ->groupBy('type_buy_id')
+            ->where('ticket_invoices.entity_id', $this->getEntity())
+            ->where('ticket_invoices.cash_id', request('cash_id'))
+            ->where('detail_ticket_invoices.condition','!=','0')
+            ->groupBy('ticket_invoices.type_buy_id')
             ->get();
 
         return response()->json([

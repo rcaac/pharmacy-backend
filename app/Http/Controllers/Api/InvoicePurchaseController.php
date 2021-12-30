@@ -472,7 +472,7 @@ class InvoicePurchaseController extends Controller
                     'voucher'            => request('number'),
                     'product_id'         => $purchase['id'],
                     'area_assignment_id' => request('area_assignment_id'),
-                    'movement_id'        => '4',
+                    'movement_id'        => '3',
                     'entity_id'          => request('entity_id'),
                 ]);
 
