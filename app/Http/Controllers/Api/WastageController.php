@@ -39,73 +39,20 @@ class WastageController extends Controller
     public function listProducts($search): JsonResponse
     {
         $entity = $this->getEntity();
-        $products = Product::query();
-        $products = $products->select(
-            'id',
-            'barcode',
-            'name',
-            'short_name',
-            'maximum_stock',
-            'minimum_stock',
-            'box_quantity',
-            'blister_quantity',
-            'presentation_sale',
-            'buy_unit',
-            'buy_blister',
-            'buy_box',
-            'sale_unit',
-            'sale_blister',
-            'sale_box',
-            'minimum_sale_unit',
-            'minimum_sale_blister',
-            'minimum_sale_box',
-            'control_expiration',
-            'control_stock',
-            'control_refrigeration',
-            'control_prescription',
-            'lab_mark_id',
-            'active_principle_id',
-            'therapeutic_action_id',
-            'presentation_id',
-            'location_id',
-            'created_at'
-        )
-            ->with([
-                'laboratory',
-                'generic',
-                'category',
-                'presentation',
-                'location',
-                'stock' => function($query) use ($entity){
-                    $query->where('entity_id', $entity);
-                },
-                'details' => function($query) use ($entity){
-                    $query->where('stock_quantity', '>', 0);
-                    $query->where('entity_id', $entity);
-                }
-            ])
-            ->where('condition', '1');
-
-        if (strpos($search, '*') !== false) {
-            $replace = str_replace("*", " ", $search);
-            $result = ltrim($replace);
-            $products = $products->whereHas('generic', function($query) use ($result) {
-                $query->where("name", "LIKE","%$result%");
-            });
-        }else if (strpos($search, '/') !== false) {
-            $replace = str_replace("/", " ", $search);
-            $result = ltrim($replace);
-            $products = $products->whereHas('category', function($query) use ($result) {
-                $query->where("name", "LIKE","%$result%");
-            });
-        }else {
-            $products = $products->where('name', 'LIKE', "%$search%")->orderBy('name')->get();
-        }
+        $products = DetailInvoicePurchase::with(['product'])
+            ->where('condition', '1')
+            ->where('stock_quantity', '>', 0)
+            ->where('entity_id', $entity);
+        $products = $products->whereHas('product', function($query) use ($search, $entity) {
+            $query->where("name", "LIKE", "%$search%")
+                  ->where('entity_id', $entity)
+                  ->orderBy('name');
+        });
 
         return response()->json(
             [
                 "success"  => true,
-                "data"     => $products
+                "data"     => $products->get()
             ]
         );
     }

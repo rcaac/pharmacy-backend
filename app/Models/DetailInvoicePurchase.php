@@ -57,7 +57,7 @@ class DetailInvoicePurchase extends Model
 
     public function product(): BelongsTo
     {
-        return $this->belongsTo(Product::class, 'product_id')->with(['laboratory', 'generic', 'category', 'presentation', 'location']);
+        return $this->belongsTo(Product::class, 'product_id')->with(['laboratory', 'generic', 'category', 'presentation', 'location', 'stock']);
     }
 
     public function invoice(): BelongsTo

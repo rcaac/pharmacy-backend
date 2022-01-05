@@ -115,7 +115,6 @@ class ReportController
                 'details'     => $details,
                 'comprobante' => $comprobante,
 
-
             ]
         );
     }
