@@ -161,12 +161,12 @@ class WastageController extends Controller
                         $first = $quantities[0];
                         $last  = $quantities[1];
                     }
-                    $quantity = (int)$first * (int)$wastage['box_quantity'] + (int)$last;
+                    $quantity = (int)$first * (int)$wastage['product']['box_quantity'] + (int)$last;
                 }else {
                     $quantity = (int)$wastage['quantity'];
                 }
 
-                $product_stock = ProductStock::where('product_id', $wastage['id'])
+                $product_stock = ProductStock::where('product_id', $wastage['product']['id'])
                     ->where('entity_id', $this->getEntity())
                     ->value('stock');
 
@@ -180,15 +180,15 @@ class WastageController extends Controller
 
                 WastageDetail::create([
                     'quantity'                   => $quantity,
-                    'cost_unit'                  => $wastage['sale_unit'],
-                    'cost_total'                 => $quantity * $wastage['sale_unit'],
+                    'cost_unit'                  => $wastage['product']['sale_unit'],
+                    'cost_total'                 => $quantity * $wastage['product']['sale_unit'],
                     'lot'                        => $wastage['lot'],
                     'date_expiration'            => Carbon::now(),
                     'condition'                  => '1',
                     'entity_id'                  => $this->getEntity(),
-                    'product_id'                 => $wastage['id'],
+                    'product_id'                 => $wastage['product']['id'],
                     'wastage_id'                 => $wastage_created->id,
-                    'detail_invoice_purchase_id' => $wastage['details'][0]['id']
+                    'detail_invoice_purchase_id' => $wastage['id']
                 ]);
 
                 Kardex::create([
@@ -203,18 +203,18 @@ class WastageController extends Controller
                     'entity_id'          => $this->getEntity()
                 ]);
 
-                $product_stock_id = ProductStock::where('product_id', $wastage['id'])->where('entity_id', $this->getEntity())->value('id');
+                $product_stock_id = ProductStock::where('product_id', $wastage['product']['id'])->where('entity_id', $this->getEntity())->value('id');
 
                 $search_product_stock = ProductStock::findOrFail($product_stock_id);
                 $search_product_stock->fill([
                     'stock' => (int)$previousStock - $quantity
                 ])->save();
 
-                $current = DetailInvoicePurchase::where('id', $wastage['details'][0]['id'])->value('stock_quantity');
+                $current = DetailInvoicePurchase::where('id', $wastage['id'])->value('stock_quantity');
 
                 $quantity_current = (int)$current - $quantity;
 
-                $detail_invoice_purchase = DetailInvoicePurchase::findOrFail($wastage['details'][0]['id']);
+                $detail_invoice_purchase = DetailInvoicePurchase::findOrFail($wastage['id']);
 
                 $detail_invoice_purchase->fill([
                     'stock_quantity' => $quantity_current < 0 ? '0' : $quantity_current

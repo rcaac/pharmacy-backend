@@ -515,7 +515,6 @@ class TicketInvoiceController extends Controller
 
         try{
 
-
             DB::beginTransaction();
 
             $product_stock_id = ProductStock::where('product_id', $item['product']['id'])->value('id');
