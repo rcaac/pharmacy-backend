@@ -15,7 +15,7 @@ class AddForeignDatailTicketInvoice extends Migration
     {
         Schema::table('detail_ticket_invoices', function (Blueprint $table) {
             $table->unsignedBigInteger('detail_invoice_purchase_id')->after('product_id')->nullable();
-            $table->foreign('detail_invoice_purchase_id')->references('id')->on('detail_ticket_invoices');
+            $table->foreign('detail_invoice_purchase_id')->references('id')->on('detail_invoice_purchases');
         });
     }
 

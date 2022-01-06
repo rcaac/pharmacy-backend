@@ -391,7 +391,13 @@ class TicketInvoiceController extends Controller
 
         }catch(Exception $e){
             DB::rollBack();
-            return response()->json($e->getMessage());
+
+            return response()->json(
+                [
+                    "message"   => "No se genero la venta!!!",
+                    $e->getMessage()
+                ],
+                400);
         }
     }
 
