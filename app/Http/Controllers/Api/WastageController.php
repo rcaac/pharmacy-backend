@@ -197,7 +197,7 @@ class WastageController extends Controller
                     'previousStock'      => (int)$previousStock,
                     'currentStock'       => $currentStock,
                     'voucher'            => request('voucher'),
-                    'product_id'         => $wastage['id'],
+                    'product_id'         => $wastage['product']['id'],
                     'area_assignment_id' => request('area_assignment_id'),
                     'movement_id'        => '5',
                     'entity_id'          => $this->getEntity()
