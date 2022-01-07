@@ -106,6 +106,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('report/productStock/{id}', 'Api\ReportController@getReportProductStock')->name('api.productStock.getReportProductStock');
     Route::get('report/comprobanteVenta/{id}', 'Api\ReportController@getReportComprobanteVenta')->name('api.comprobanteVenta.getReportComprobanteVenta');
     Route::get('report/productStockValorizado/{id}', 'Api\ReportController@getReportProductStockValorizado')->name('api.productStockValorizado.getReportProductStockValorizado');
+    Route::get('report/productStockInventary/{id}', 'Api\ReportController@getReportProductStockInventary')->name('api.productStockInventary.getReportProductStockInventary');
+    Route::get('report/productExpiration/{id}', 'Api\ReportController@getReportProductExpiration')->name('api.productExpiration.getReportProductExpiration');
 
     //************************************* MERMAS ****************************************************************************************
     Route::get('wastage/products/{search}', 'Api\WastageController@listProducts')->name('api.wastage.listProducts');

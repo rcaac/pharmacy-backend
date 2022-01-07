@@ -11,6 +11,7 @@ use App\Models\Person;
 use App\Models\Product;
 use App\Models\TicketInvoice;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -217,6 +218,82 @@ class ReportController
             ]
         );
     }
+
+    public function getReportProductStockInventary($id): JsonResponse
+    {
+
+        $details = DB::table('detail_invoice_purchases')->select(
+
+            'products.name',
+            DB::raw('lab_marks.name as lab'),
+            DB::raw('presentations.name as present'),
+            DB::raw("sum(detail_invoice_purchases.stock_quantity) as cantidad"),
+
+        )
+
+            ->join('products', 'products.id', '=', 'detail_invoice_purchases.product_id')
+            ->join('lab_marks', 'products.lab_mark_id', '=', 'lab_marks.id')
+            ->join('presentations', 'products.presentation_id', '=', 'presentations.id')
+            ->where('detail_invoice_purchases.entity_id', $id)->where('detail_invoice_purchases.condition','!=','0')
+            ->groupBy('products.name', 'lab_marks.name', 'presentations.name')
+            ->orderBy('products.name', 'asc')
+            ->get();
+
+
+
+        $sucursal = DB::table('entities')->select('name')->where('id', $id)->get();
+
+        return response()->json(
+            [
+                'details'     => $details,
+
+                'sucursal'    => $sucursal,
+
+            ]
+        );
+    }
+
+    public function getReportProductExpiration($id): JsonResponse
+    {
+
+        $details = DB::table('detail_invoice_purchases')->select(
+
+            'products.name',
+            DB::raw('lab_marks.name as lab'),
+            DB::raw('presentations.name as present'),
+            'detail_invoice_purchases.lot',
+            DB::raw('detail_invoice_purchases.expiration_date as expiration'),
+            DB::raw("if(products.box_quantity>1, concat_ws('F',(detail_invoice_purchases.stock_quantity DIV products.box_quantity),(detail_invoice_purchases.stock_quantity MOD products.box_quantity)), detail_invoice_purchases.stock_quantity) AS cantidad "),
+
+        )
+
+            ->join('products', 'products.id', '=', 'detail_invoice_purchases.product_id')
+            ->join('lab_marks', 'products.lab_mark_id', '=', 'lab_marks.id')
+            ->join('presentations', 'products.presentation_id', '=', 'presentations.id')
+            ->where('expiration_date','>', Carbon::now())
+            ->where('stock_quantity','>','0')
+            ->where('products.control_expiration','=','1')
+
+            ->orderBy('detail_invoice_purchases.expiration_date')
+            ->get();
+
+
+
+        $sucursal = DB::table('entities')->select('name')->where('id', $id)->get();
+
+        return response()->json(
+            [
+                'details'     => $details,
+
+                'sucursal'    => $sucursal,
+
+            ]
+        );
+    }
+
+
+
+
 
     public function getReportComprobanteVenta($id): JsonResponse
     {
