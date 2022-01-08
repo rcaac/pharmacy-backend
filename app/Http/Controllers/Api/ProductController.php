@@ -5,13 +5,16 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\ActivePrinciple;
 use App\Models\AreaAssignment;
+use App\Models\DetailInvoicePurchase;
 use App\Models\Kardex;
 use App\Models\LabMark;
 use App\Models\Location;
 use App\Models\Presentation;
 use App\Models\Product;
 use App\Models\TherapeuticAction;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class ProductController extends Controller
@@ -112,6 +115,69 @@ class ProductController extends Controller
         }
 
         abort(401);
+    }
+
+    public function getExpired(): JsonResponse
+    {
+        $itemsPerPage = (int) request('itemsPerPage');
+        $search = request('search1') ?? null;
+        $date_now = Carbon::now()->format('Y-m-d');
+
+        $details = DB::table('detail_invoice_purchases')->select(
+            'products.name AS product',
+            'lab_marks.name AS laboratory',
+            'presentations.name AS presentation',
+            'detail_invoice_purchases.expiration_date AS date',
+            DB::raw("if(products.box_quantity>1, concat_ws('F',(detail_invoice_purchases.stock_quantity DIV products.box_quantity),(detail_invoice_purchases.stock_quantity MOD products.box_quantity)), detail_invoice_purchases.stock_quantity) AS stock"),
+        )
+            ->join('products', 'detail_invoice_purchases.product_id', '=', 'products.id')
+            ->join('presentations', 'presentations.id', '=', 'products.presentation_id')
+            ->join('lab_marks', 'lab_marks.id', '=', 'products.lab_mark_id')
+            ->where('detail_invoice_purchases.expiration_date', '>', $date_now)
+            ->where('detail_invoice_purchases.stock_quantity', '>', 0)
+            ->where('products.control_expiration', '=', 1)
+            ->where('products.name', 'LIKE', "%$search%")
+            ->orderBy('detail_invoice_purchases.expiration_date')
+            ->paginate($itemsPerPage != 'undefined' ? $itemsPerPage : 10);
+
+
+        return response()->json(
+            [
+                "success"  => true,
+                "data"     => $details,
+            ]
+        );
+    }
+
+    public function getToExpire(): JsonResponse
+    {
+        $itemsPerPage = (int) request('itemsPerPage');
+        $search = request('search2') ?? null;
+        $date_now = Carbon::now()->format('Y-m-d');
+
+        $details = DB::table('detail_invoice_purchases')->select(
+            'products.name AS product',
+            'lab_marks.name AS laboratory',
+            'presentations.name AS presentation',
+            'detail_invoice_purchases.expiration_date AS date',
+            DB::raw("if(products.box_quantity>1, concat_ws('F',(detail_invoice_purchases.stock_quantity DIV products.box_quantity),(detail_invoice_purchases.stock_quantity MOD products.box_quantity)), detail_invoice_purchases.stock_quantity) AS stock"),
+        )
+            ->join('products', 'detail_invoice_purchases.product_id', '=', 'products.id')
+            ->join('presentations', 'presentations.id', '=', 'products.presentation_id')
+            ->join('lab_marks', 'lab_marks.id', '=', 'products.lab_mark_id')
+            ->where('detail_invoice_purchases.expiration_date', '<', $date_now)
+            ->where('detail_invoice_purchases.stock_quantity', '>', 0)
+            ->where('products.control_expiration', '=', 1)
+            ->where('products.name', 'LIKE', "%$search%")
+            ->orderBy('detail_invoice_purchases.expiration_date')
+            ->paginate($itemsPerPage != 'undefined' ? $itemsPerPage : 10);
+
+        return response()->json(
+            [
+                "success"  => true,
+                "data"     => $details,
+            ]
+        );
     }
 
     private function validation($request): \Illuminate\Contracts\Validation\Validator

@@ -65,6 +65,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('products/kardex', 'Api\ProductController@getKardex')->name('api.product.getKardex');
     Route::post('products/kardex/fetch', 'Api\ProductController@fetchKardex')->name('api.product.fetchKardex');
     Route::get('products/kardex/filter', 'Api\ProductController@filterKardex')->name('api.product.filterKardex');
+    Route::get('products/expired', 'Api\ProductController@getExpired')->name('api.product.getExpired');
+    Route::get('products/toexpire', 'Api\ProductController@getToExpire')->name('api.product.getToExpire');
 
     //*********************************************COMPRAS**************************************************************
     Route::get('invoices/products/{search}', 'Api\InvoicePurchaseController@listProducts')->name('api.invoices.listProducts')->where('search', '.*');;
