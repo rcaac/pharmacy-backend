@@ -110,6 +110,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('report/productStockValorizado/{id}', 'Api\ReportController@getReportProductStockValorizado')->name('api.productStockValorizado.getReportProductStockValorizado');
     Route::get('report/productStockInventary/{id}', 'Api\ReportController@getReportProductStockInventary')->name('api.productStockInventary.getReportProductStockInventary');
     Route::get('report/productExpiration/{id}', 'Api\ReportController@getReportProductExpiration')->name('api.productExpiration.getReportProductExpiration');
+    Route::get('report/productDefeated/{id}', 'Api\ReportController@getReportProductDefeated')->name('api.productDefeated.getReportProductDefeated');
+    Route::get('report/productStockMin/{id}', 'Api\ReportController@getReportProductStockMin')->name('api.productStockMin.getReportProductStockMin');
+    Route::get('report/productTopSales/{id}', 'Api\ReportController@getReportProductTopSales')->name('api.productTopSales.getReportProductTopSales');
+    Route::get('report/salesCashesPersons/{id}', 'Api\ReportController@getReportsalesCashesPersons')->name('api.salesCashesPersons.getReportSalesCashesPersons');
+    Route::get('report/salesMonthPersonal/{id}', 'Api\ReportController@getReportSalesMonthPersonal')->name('api.salesMonthPersonal.getReportSalesMonthPersonal');
+    Route::get('report/salesMonth/{id}', 'Api\ReportController@getReportSalesMonth')->name('api.salesMonth.getReportSalesMonth');
 
     //************************************* MERMAS ****************************************************************************************
     Route::get('wastage/products/{search}', 'Api\WastageController@listProducts')->name('api.wastage.listProducts');

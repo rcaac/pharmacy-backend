@@ -234,7 +234,8 @@ class ReportController
             ->join('products', 'products.id', '=', 'detail_invoice_purchases.product_id')
             ->join('lab_marks', 'products.lab_mark_id', '=', 'lab_marks.id')
             ->join('presentations', 'products.presentation_id', '=', 'presentations.id')
-            ->where('detail_invoice_purchases.entity_id', $id)->where('detail_invoice_purchases.condition','!=','0')
+            ->where('detail_invoice_purchases.entity_id', $id)
+            ->where('detail_invoice_purchases.condition','!=','0')
             ->groupBy('products.name', 'lab_marks.name', 'presentations.name')
             ->orderBy('products.name', 'asc')
             ->get();
@@ -273,7 +274,8 @@ class ReportController
             ->where('expiration_date','>', Carbon::now())
             ->where('stock_quantity','>','0')
             ->where('products.control_expiration','=','1')
-
+            ->where('detail_invoice_purchases.condition','!=','0')
+            ->where('detail_invoice_purchases.entity_id', $id)
             ->orderBy('detail_invoice_purchases.expiration_date')
             ->get();
 
@@ -292,9 +294,193 @@ class ReportController
     }
 
 
+    public function getReportProductDefeated($id): JsonResponse
+    {
+
+        $details = DB::table('detail_invoice_purchases')->select(
+
+            'products.name',
+            DB::raw('lab_marks.name as lab'),
+            DB::raw('presentations.name as present'),
+            'detail_invoice_purchases.lot',
+            DB::raw('detail_invoice_purchases.expiration_date as expiration'),
+            DB::raw("if(products.box_quantity>1, concat_ws('F',(detail_invoice_purchases.stock_quantity DIV products.box_quantity),(detail_invoice_purchases.stock_quantity MOD products.box_quantity)), detail_invoice_purchases.stock_quantity) AS cantidad "),
+        )
+
+            ->join('products', 'products.id', '=', 'detail_invoice_purchases.product_id')
+            ->join('lab_marks', 'products.lab_mark_id', '=', 'lab_marks.id')
+            ->join('presentations', 'products.presentation_id', '=', 'presentations.id')
+            ->where('expiration_date','<', Carbon::now())
+            ->where('stock_quantity','>','0')
+            ->where('products.control_expiration','=','1')
+            ->where('detail_invoice_purchases.condition','!=','0')
+            ->where('detail_invoice_purchases.entity_id', $id)
+
+            ->orderBy('detail_invoice_purchases.expiration_date','desc')
+            ->get();
+
+        $sucursal = DB::table('entities')->select('name')->where('id', $id)->get();
+
+        return response()->json(
+            [
+                'details'     => $details,
+                'sucursal'    => $sucursal,
+
+            ]
+        );
+    }
+
+    public function getReportProductStockMin($id): JsonResponse
+    {
+
+        $details = DB::table('detail_invoice_purchases')->select(
+
+            'products.name',
+            DB::raw('lab_marks.name as lab'),
+            DB::raw('presentations.name as present'),
+            DB::raw("sum(detail_invoice_purchases.stock_quantity) as cantidad"),
+            DB::raw('products.minimum_stock as stockMin'),
+        )
+
+            ->join('products', 'products.id', '=', 'detail_invoice_purchases.product_id')
+            ->join('lab_marks', 'products.lab_mark_id', '=', 'lab_marks.id')
+            ->join('presentations', 'products.presentation_id', '=', 'presentations.id')
+            ->where('detail_invoice_purchases.condition','!=','0')
+            ->where('detail_invoice_purchases.entity_id', $id)
+            ->groupBy('products.name','lab_marks.name', 'presentations.name', 'products.minimum_stock')
+            ->havingRaw('cantidad < stockMin')
+            ->get();
+
+        $sucursal = DB::table('entities')->select('name')->where('id', $id)->get();
+
+        return response()->json(
+            [
+                'details'     => $details,
+                'sucursal'    => $sucursal,
+
+            ]
+        );
+    }
+
+    public function getReportProductTopSales($id): JsonResponse
+    {
 
 
 
+        $details = DB::table('detail_ticket_invoices')->select(
+
+            'products.name',
+            DB::raw('lab_marks.name as lab'),
+            DB::raw('presentations.name as present'),
+            DB::raw("sum(detail_ticket_invoices.quantity) as cantidad"),
+
+        )
+
+            ->join('products', 'products.id', '=', 'detail_ticket_invoices.product_id')
+            ->join('lab_marks', 'products.lab_mark_id', '=', 'lab_marks.id')
+            ->join('presentations', 'products.presentation_id', '=', 'presentations.id')
+            ->whereRaw('detail_ticket_invoices.created_at BETWEEN DATE_SUB(NOW(),INTERVAL 31 day) AND now()')
+            ->where('detail_ticket_invoices.condition','!=','0')
+            ->groupBy('products.name','lab_marks.name', 'presentations.name')
+            ->orderBy('cantidad' ,'DESC')
+
+            ->get();
+
+        $sucursal = DB::table('entities')->select('name')->where('id', $id)->get();
+
+        return response()->json(
+            [
+                'details'     => $details,
+                'sucursal'    => $sucursal,
+
+            ]
+        );
+    }
+
+    public function getReportSalesCashesPersons($id): JsonResponse
+    {
+        $details = DB::table('cashes')->select(
+
+            'persons.firstName',
+            'persons.lastName',
+            DB::raw('cashes.id as caja'),
+            DB::raw('cashes.opening_date as fechaApertura'),
+            DB::raw('cashes.initial_balance as montoApertura'),
+            DB::raw('cashes.closing_date as fechaCierre'),
+            DB::raw('cashes.final_balance as montoCierre'),
+            DB::raw('cashes.observations as observaciones'),
+            DB::raw('areas.name as areaAsignada'),
+
+        )
+            ->join('persons', 'persons.id', '=', 'cashes.created_by')
+            ->join('area_assignments', 'area_assignments.id', '=', 'cashes.area_assignment_id')
+            ->join('areas', 'areas.id', '=', 'area_assignments.area_id')
+            ->orderBy('cashes.id' ,'DESC')
+            ->get();
+
+        $sucursal = DB::table('entities')->select('name')->where('id', $id)->get();
+
+        return response()->json(
+            [
+                'details'     => $details,
+                'sucursal'    => $sucursal,
+
+            ]
+        );
+    }
+
+
+    public function getReportSalesMonthPersonal($id): JsonResponse
+    {
+        $details = DB::table('detail_ticket_invoices')->select(
+
+            'persons.firstName',
+            'persons.lastName',
+            DB::raw('DATE_FORMAT(detail_ticket_invoices.created_at, "%b") AS month'),
+            DB::raw('DATE_FORMAT(detail_ticket_invoices.created_at, "%Y-%m") as md'),
+            DB::raw('sum(detail_ticket_invoices.total) as total'),
+
+        )
+            ->join('persons', 'persons.id', '=', 'detail_ticket_invoices.created_by')
+            ->whereRaw('(detail_ticket_invoices.created_at <= NOW() and detail_ticket_invoices.created_at >= Date_add(Now(),interval - 12 month))')
+            ->where('detail_ticket_invoices.condition','!=','0')
+            ->groupBy('month','md','persons.firstName','persons.lastName')
+            ->orderBy('md' ,'DESC')
+            ->get();
+
+        $sucursal = DB::table('entities')->select('name')->where('id', $id)->get();
+
+        return response()->json(
+            [
+                'details'     => $details,
+                'sucursal'    => $sucursal,
+
+            ]
+        );
+    }
+    public function getReportSalesMonth($id): JsonResponse
+    {
+        $details = DB::table('detail_ticket_invoices')->select(
+            DB::raw('DATE_FORMAT(detail_ticket_invoices.created_at, "%b") AS month'),
+            DB::raw('DATE_FORMAT(detail_ticket_invoices.created_at, "%Y-%m") as md'),
+            DB::raw('sum(detail_ticket_invoices.total) as total'),
+        )
+            ->whereRaw('(detail_ticket_invoices.created_at <= NOW() and detail_ticket_invoices.created_at >= Date_add(Now(),interval - 12 month))')
+            ->where('detail_ticket_invoices.condition','!=','0')
+            ->groupBy('month','md')
+            ->orderBy('md' ,'DESC')
+            ->get();
+
+        $sucursal = DB::table('entities')->select('name')->where('id', $id)->get();
+
+        return response()->json(
+            [
+                'details'     => $details,
+                'sucursal'    => $sucursal,
+
+            ]
+        );
+    }
     public function getReportComprobanteVenta($id): JsonResponse
     {
         $totalVentas = TicketInvoice::where('id',$id)

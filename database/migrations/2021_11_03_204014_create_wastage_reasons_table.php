@@ -27,6 +27,7 @@ class CreateWastageReasonsTable extends Migration
         DB::table('wastage_reasons')->insert(array('id'=>'4','name'=>'TÓPICO BOTICA', 'created_at'=>Carbon::now(), 'updated_at'=>Carbon::now()));
         DB::table('wastage_reasons')->insert(array('id'=>'5','name'=>'INVENTARIO', 'created_at'=>Carbon::now(), 'updated_at'=>Carbon::now()));
         DB::table('wastage_reasons')->insert(array('id'=>'6','name'=>'EXCESO', 'created_at'=>Carbon::now(), 'updated_at'=>Carbon::now()));
+        DB::table('wastage_reasons')->insert(array('id'=>'7','name'=>'TRANSFERENCIA', 'created_at'=>Carbon::now(), 'updated_at'=>Carbon::now()));
     }
 
     /**
