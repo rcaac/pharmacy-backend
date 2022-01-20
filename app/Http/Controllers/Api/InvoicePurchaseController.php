@@ -548,12 +548,18 @@ class InvoicePurchaseController extends Controller
                 'stock' => (int)$stock_quantity - (int)$quantity,
             ])->save();
 
+            $voucher = InvoicePurchase::select(
+                DB::raw("number"),
+            )
+                ->where('id', $invoice_purchase_id)
+                ->value('number');
+
             Kardex::create([
                 'date'               => Carbon::now(),
                 'quantity'           => (int)$quantity,
                 'previousStock'      => (int)$stock_quantity,
                 'currentStock'       => (int)$stock_quantity - (int)$quantity,
-                'voucher'            => request('number'),
+                'voucher'            => $voucher,
                 'product_id'         => request('product_id'),
                 'area_assignment_id' => $this->getAreaAssignment(),
                 'movement_id'        => '3',

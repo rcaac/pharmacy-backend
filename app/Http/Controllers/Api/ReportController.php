@@ -59,6 +59,7 @@ class ReportController
            ->join('products', 'products.id', '=', 'detail_ticket_invoices.product_id')
            ->where('ticket_invoices.cash_id', $id)
            ->where('detail_ticket_invoices.condition','!=','0')
+            ->orderBy('ticket_invoices.numero', 'asc')
            ->get();
 
         return response()->json(

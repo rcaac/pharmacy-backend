@@ -313,7 +313,7 @@ class TicketInvoiceController extends Controller
                     'quantity'           => $quantity,
                     'previousStock'      => (int)$previousStock,
                     'currentStock'       => $currentStock,
-                    'voucher'            => $numero,
+                    'voucher'            => $prefijo.'-'.$numero,
                     'product_id'         => $sale['id'],
                     'area_assignment_id' => request('area_assignment_id'),
                     'movement_id'        => '2',
@@ -542,6 +542,12 @@ class TicketInvoiceController extends Controller
                 $detail->fill(['condition' => '0' ])->save();
             }
 
+            $voucher = TicketInvoice::select(
+                DB::raw("concat(prefijo," - ",numero) as voucher"),
+            )
+                ->where('id', $item['ticket_invoice_id'])
+                ->value('voucher');
+
             $previousStock = DetailInvoicePurchase::select(
                 DB::raw('sum(stock_quantity)'),
                 )
@@ -558,7 +564,7 @@ class TicketInvoiceController extends Controller
                 'quantity'           => (int)$item['quantity'],
                 'previousStock'      => (int)$previousStock,
                 'currentStock'       => $currentStock,
-                'voucher'            => $item['product']['id'],
+                'voucher'            => $voucher,
                 'product_id'         => $item['product']['id'],
                 'area_assignment_id' => request('area_assignment_id'),
                 'movement_id'        => '4',

@@ -39,7 +39,9 @@ class WastageController extends Controller
     public function listProducts($search): JsonResponse
     {
         $entity = $this->getEntity();
-        $products = DetailInvoicePurchase::with(['product'])
+        $products = DetailInvoicePurchase::
+
+            with(['product'])
             ->where('condition', '1')
             ->where('stock_quantity', '>', 0)
             ->where('entity_id', $entity);
@@ -49,10 +51,12 @@ class WastageController extends Controller
                   ->orderBy('name');
         });
 
+
         return response()->json(
             [
                 "success"  => true,
-                "data"     => $products->get()
+                "data"     => $products->get(),
+
             ]
         );
     }

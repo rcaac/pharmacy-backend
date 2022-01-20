@@ -444,7 +444,7 @@ class ProductController extends Controller
                     ->with(['product', 'movement', 'assigment.person', 'entity'])
                     ->orderBy('id', 'DESC')
                     ->paginate($itemsPerPage != 'undefined' ? $itemsPerPage : 10);
-
+                    //->paginate();
         return response()->json(
             [
                 "success" => true,
@@ -454,13 +454,14 @@ class ProductController extends Controller
     }
 
     public function fetchKardex(): JsonResponse
-    {
+    {   $itemsPerPage = (int) request('itemsPerPage');
         $fetch= Kardex::select('date', 'quantity', 'previousStock', 'currentStock', 'voucher', 'product_id', 'area_assignment_id', 'movement_id', 'entity_id')
             ->with(['product', 'movement', 'assigment.person', 'entity'])
             ->where('product_id', request('product_id'))
             ->where('entity_id', request('entity_id'))
             ->orderBy('id', 'DESC')
-            ->paginate();
+            ->paginate($itemsPerPage != 'undefined' ? $itemsPerPage : 50);
+            //->paginate();
 
         return response()->json(
             [
@@ -472,7 +473,13 @@ class ProductController extends Controller
 
     public function filterKardex(): JsonResponse
     {
-        $filter = Product::select('id', 'name')->where('condition', 1)->get();
+        $filter = Product::select(
+            'products.id as id',
+            DB::raw('concat(products.name," :: ",lab_marks.name) as name'),
+        )
+            ->join('lab_marks', 'products.lab_mark_id', '=', 'lab_marks.id')
+            ->where('condition', 1)
+            ->get();
 
         return response()->json(
             [
