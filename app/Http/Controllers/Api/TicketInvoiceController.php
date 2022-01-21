@@ -587,7 +587,7 @@ class TicketInvoiceController extends Controller
 
         }catch(Exception $e){
             DB::rollBack();
-            return response()->json($e->getTrace());
+            return response()->json($e->getMessage());
         }
     }
 
