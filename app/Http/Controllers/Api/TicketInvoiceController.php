@@ -543,7 +543,7 @@ class TicketInvoiceController extends Controller
             }
 
             $voucher = TicketInvoice::select(
-                DB::raw("concat(prefijo," - ",numero) as voucher"),
+                DB::raw('concat(prefijo,"-",numero) as voucher'),
             )
                 ->where('id', $item['ticket_invoice_id'])
                 ->value('voucher');
@@ -587,7 +587,7 @@ class TicketInvoiceController extends Controller
 
         }catch(Exception $e){
             DB::rollBack();
-            return response()->json($e->getMessage());
+            return response()->json($e->getTrace());
         }
     }
 
