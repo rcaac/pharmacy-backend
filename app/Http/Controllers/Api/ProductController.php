@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ProductRequest;
 use App\Models\ActivePrinciple;
 use App\Models\AreaAssignment;
 use App\Models\DetailInvoicePurchase;
@@ -16,6 +17,7 @@ use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class ProductController extends Controller
 {
@@ -274,49 +276,41 @@ class ProductController extends Controller
         return response()->json(compact('product'),201);
     }
 
-    public function update(int $id): JsonResponse
+    public function update(ProductRequest $request, int $id): JsonResponse
     {
         $product = Product::findOrFail($id);
 
         if (!$product) {
             return response()->json(["message" => "Area no encontrada"], 404);
         }
-        $this->validation(request()->input());
-
-        if ($this->validation(request()->input())->fails()) {
-            return response()->json(array(
-                'success' => false,
-                'errors' => $this->validation(request()->input())->getMessageBag()->toArray()
-            ), 422);
-        }
 
         $product->fill([
-            'barcode'               => request('barcode'),
-            'name'                  => request('name'),
-            'short_name'            => request('short_name'),
-            'maximum_stock'         => request('maximum_stock'),
-            'minimum_stock'         => request('minimum_stock'),
-            'box_quantity'          => request('box_quantity'),
-            'blister_quantity'      => request('blister_quantity'),
-            'presentation_sale'     => request('presentation_sale'),
-            'buy_unit'              => request('buy_unit'),
-            'buy_blister'           => request('buy_blister'),
-            'buy_box'               => request('buy_box'),
-            'sale_unit'             => request('sale_unit'),
-            'sale_blister'          => request('sale_blister'),
-            'sale_box'              => request('sale_box'),
-            'minimum_sale_unit'     => request('minimum_sale_unit'),
-            'minimum_sale_blister'  => request('minimum_sale_blister'),
-            'minimum_sale_box'      => request('minimum_sale_box'),
-            'control_expiration'    => request('control_expiration'),
-            'control_stock'         => request('control_stock'),
-            'control_refrigeration' => request('control_refrigeration'),
-            'control_prescription'  => request('control_prescription'),
-            'lab_mark_id'           => request('lab_mark_id'),
-            'active_principle_id'   => request('active_principle_id'),
-            'therapeutic_action_id' => request('therapeutic_action_id'),
-            'presentation_id'       => request('presentation_id'),
-            'location_id'           => request('location_id'),
+            'barcode'               => $request->input('barcode'),
+            'name'                  => $request->input('name'),
+            'short_name'            => $request->input('short_name'),
+            'maximum_stock'         => $request->input('maximum_stock'),
+            'minimum_stock'         => $request->input('minimum_stock'),
+            'box_quantity'          => $request->input('box_quantity'),
+            'blister_quantity'      => $request->input('blister_quantity'),
+            'presentation_sale'     => $request->input('presentation_sale'),
+            'buy_unit'              => $request->input('buy_unit'),
+            'buy_blister'           => $request->input('buy_blister'),
+            'buy_box'               => $request->input('buy_box'),
+            'sale_unit'             => $request->input('sale_unit'),
+            'sale_blister'          => $request->input('sale_blister'),
+            'sale_box'              => $request->input('sale_box'),
+            'minimum_sale_unit'     => $request->input('minimum_sale_unit'),
+            'minimum_sale_blister'  => $request->input('minimum_sale_blister'),
+            'minimum_sale_box'      => $request->input('minimum_sale_box'),
+            'control_expiration'    => $request->input('control_expiration'),
+            'control_stock'         => $request->input('control_stock'),
+            'control_refrigeration' => $request->input('control_refrigeration'),
+            'control_prescription'  => $request->input('control_prescription'),
+            'lab_mark_id'           => $request->input('lab_mark_id'),
+            'active_principle_id'   => $request->input('active_principle_id'),
+            'therapeutic_action_id' => $request->input('therapeutic_action_id'),
+            'presentation_id'       => $request->input('presentation_id'),
+            'location_id'           => $request->input('location_id'),
             'created_by'            => $this->getPersonId(),
             'condition'             => '1'
         ])->save();
