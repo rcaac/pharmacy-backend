@@ -40,7 +40,7 @@ class AssignmentController extends Controller
     public function filterPersons(): JsonResponse
     {
         $search = request('search') ?? null;
-        $filters = Person::select('id', 'dni', 'firstName', 'lastName', 'direction', 'phone')
+        $filters = Person::select('id', 'dni', 'email', 'firstName', 'lastName', 'direction', 'phone')
             ->where('dni', $search)
             ->get();
         return response()->json([

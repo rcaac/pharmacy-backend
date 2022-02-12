@@ -438,7 +438,7 @@ class ProductController extends Controller
                     ->with(['product', 'movement', 'assigment.person', 'entity'])
                     ->orderBy('id', 'DESC')
                     ->paginate($itemsPerPage != 'undefined' ? $itemsPerPage : 10);
-                    //->paginate();
+
         return response()->json(
             [
                 "success" => true,
@@ -455,7 +455,7 @@ class ProductController extends Controller
             ->where('entity_id', request('entity_id'))
             ->orderBy('id', 'DESC')
             ->paginate($itemsPerPage != 'undefined' ? $itemsPerPage : 50);
-            //->paginate();
+
 
         return response()->json(
             [

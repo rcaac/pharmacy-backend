@@ -33,6 +33,7 @@ class WastageDetail extends Model
 
         $wastages = $builder
             ->select(
+                'id',
                 'quantity',
                 'cost_unit',
                 'cost_total',
@@ -44,7 +45,7 @@ class WastageDetail extends Model
                 'wastage_id',
                 'detail_invoice_purchase_id'
             )
-            ->with(['wastage', 'details'])
+            ->with(['wastage', 'details', 'product'])
             ->where('condition', '!=', 0);
 
         if ($date && strlen($date) > 0) {
@@ -70,5 +71,10 @@ class WastageDetail extends Model
     {
         return $this->belongsTo(DetailInvoicePurchase::class, 'detail_invoice_purchase_id')
             ->with('invoice');
+    }
+
+    public function product(): BelongsTo
+    {
+        return $this->belongsTo(Product::class, 'product_id');
     }
 }

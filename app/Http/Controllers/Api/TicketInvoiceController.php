@@ -205,44 +205,72 @@ class TicketInvoiceController extends Controller
         try{
             DB::beginTransaction();
 
-            if (request('type_ticket_invoice_id') == 1 || request('type_ticket_invoice_id') == 4) {
+            if (request('dni') != null || request('ruc') != null) {
+                if (request('type_ticket_invoice_id') == 1 || request('type_ticket_invoice_id') == 4) {
 
-                $this->validation(request()->input());
+                    $this->validation(request()->input());
 
-                if ($this->validation(request()->input())->fails()) {
-                    return response()->json(array(
-                        'success' => false,
-                        'errors'  => $this->validation(request()->input())->getMessageBag()->toArray()
-                    ), 422);
+                    if ($this->validation(request()->input())->fails()) {
+                        return response()->json(array(
+                            'success' => false,
+                            'errors'  => $this->validation(request()->input())->getMessageBag()->toArray()
+                        ), 422);
+                    }
+
+                    if (!Person::where('ruc', request('ruc'))->count() > 0) {
+                        $person = Person::create([
+                            'ruc'            => request('ruc'),
+                            'businessName'   => request('businessName'),
+                            'phone'          => request('phone'),
+                            'email'          => request('email'),
+                            'created_by'     => $this->getPersonId(),
+                            'condition'      => '1',
+                            'person_type_id' => '1'
+                        ]);
+
+                        $customer = Customer::create([
+                            'points'    => request('points'),
+                            'person_id' => $person->id
+                        ]);
+                    }  else {
+                        $id = Person::where('ruc', request('ruc'))->value('id');
+                        $customer = Customer::create([
+                            'points'    => request('points'),
+                            'person_id' => $id
+                        ]);
+                    }
+                }else {
+                    if (!Person::where('dni', request('dni'))->count() > 0) {
+                        $person = Person::create([
+                            'dni'            => request('dni'),
+                            'firstName'      => request('firstName'),
+                            'lastName'       => request('lastName'),
+                            'direction'      => request('direction'),
+                            'phone'          => request('phone'),
+                            'email'          => request('email'),
+                            'created_by'     => $this->getPersonId(),
+                            'condition'      => '1',
+                            'person_type_id' => '2'
+                        ]);
+
+                        $customer = Customer::create([
+                            'points'    => request('points'),
+                            'person_id' => $person->id
+                        ]);
+                    } else {
+                        $id = Person::where('dni', request('dni'))->value('id');
+                        $customer = Customer::create([
+                            'points'    => request('points'),
+                            'person_id' => $id
+                        ]);
+                    }
                 }
-
-                $person = Person::create([
-                    'ruc'            => request('ruc'),
-                    'businessName'   => request('businessName'),
-                    'phone'          => request('phone'),
-                    'email'          => request('email'),
-                    'created_by'     => $this->getPersonId(),
-                    'condition'      => '1',
-                    'person_type_id' => '1'
-                ]);
             }else {
-                $person = Person::create([
-                    'dni'            => request('dni'),
-                    'firstName'      => request('firstName'),
-                    'lastName'       => request('lastName'),
-                    'direction'      => request('direction'),
-                    'phone'          => request('phone'),
-                    'email'          => request('email'),
-                    'created_by'     => $this->getPersonId(),
-                    'condition'      => '1',
-                    'person_type_id' => '2'
+                $customer = Customer::create([
+                    'points'    => request('points'),
+                    'person_id' => 1
                 ]);
             }
-
-            $customer = Customer::create([
-                'points'    => request('points'),
-                'person_id' => $person->id
-            ]);
 
             $date    = Carbon::now();
             $year    = $date->format('Y');
