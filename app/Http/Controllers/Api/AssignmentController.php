@@ -32,6 +32,7 @@ class AssignmentController extends Controller
             })
             ->where('condition', '1')
             ->paginate(10);
+        
         return response()->json([
             "data" => $filters
         ]);
