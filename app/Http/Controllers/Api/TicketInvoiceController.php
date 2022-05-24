@@ -312,7 +312,7 @@ class TicketInvoiceController extends Controller
 
             foreach($sales as $sale) {
 
-                if (strpos($sale['quantity'], 'F') !== false) {
+                if (str_contains($sale['quantity'], 'F')) {
                     $quantities = explode("F", $sale['quantity']);
 
                     for ($i = 0; $i < count($quantities); $i++) {

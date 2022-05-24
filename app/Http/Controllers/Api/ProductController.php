@@ -121,7 +121,7 @@ class ProductController extends Controller
 
     public function getExpired(): JsonResponse
     {
-        $itemsPerPage = (int) request('itemsPerPage');
+        $itemsPerPage = (int) request('itemsPerPage') ?? 10;
         $search = request('search1') ?? null;
         $date_now = Carbon::now()->format('Y-m-d');
 
@@ -140,7 +140,7 @@ class ProductController extends Controller
             ->where('products.control_expiration', '=', 1)
             ->where('products.name', 'LIKE', "%$search%")
             ->orderBy('detail_invoice_purchases.expiration_date')
-            ->paginate($itemsPerPage != 'undefined' ? $itemsPerPage : 10);
+            ->paginate($itemsPerPage ?? 10);
 
 
         return response()->json(
@@ -172,7 +172,7 @@ class ProductController extends Controller
             ->where('products.control_expiration', '=', 1)
             ->where('products.name', 'LIKE', "%$search%")
             ->orderBy('detail_invoice_purchases.expiration_date')
-            ->paginate($itemsPerPage != 'undefined' ? $itemsPerPage : 10);
+            ->paginate($itemsPerPage ?? 10);
 
         return response()->json(
             [
