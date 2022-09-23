@@ -61,9 +61,6 @@ class Product extends Model
     public function scopeFiltered(Builder $builder): Builder
     {
         $search = request('search') ?? null;
-        $sortBy = request('sortBy')[0] ?? null;
-        $by     = request('sortDesc')[0] ?? null;
-        $order  = $by ? 'desc' : 'asc';
 
         $products = $builder
             ->select(
@@ -96,17 +93,13 @@ class Product extends Model
                 'location_id',
             )
             ->with(['laboratory', 'generic', 'category', 'presentation', 'location', 'stock'])
-            ->where('condition', '1')
-            ->orderBy('name');
+            ->where('condition', '1');
+
+
         if ($search && strlen($search) > 0) {
-            $products->where('name', 'LIKE', "%$search%");
+            $products->where('name', 'LIKE', "$search%");
         }
-        switch ($sortBy) {
-            case 'name':
-            {
-                $products->orderBy($sortBy, $order);
-            }
-        }
+
         return $products;
     }
 
