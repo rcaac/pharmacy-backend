@@ -53,7 +53,6 @@ class ReportController
             DB::raw('type_buys.name  as nameTypeBuy'),
 
         )
-            
            ->join('ticket_invoices', 'ticket_invoices.id', '=', 'detail_ticket_invoices.ticket_invoice_id')
            ->join('type_buys', 'type_buys.id', '=', 'ticket_invoices.type_buy_id')
            ->join('products', 'products.id', '=', 'detail_ticket_invoices.product_id')

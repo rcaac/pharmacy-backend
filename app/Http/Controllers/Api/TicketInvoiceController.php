@@ -518,7 +518,6 @@ class TicketInvoiceController extends Controller
                     $e->getMessage()
                 ],
                 400);
-            return response()->json($e->getMessage());
 
         }
     }
