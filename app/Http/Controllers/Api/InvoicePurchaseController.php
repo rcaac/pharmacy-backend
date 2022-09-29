@@ -318,7 +318,7 @@ class InvoicePurchaseController extends Controller
 
                 DetailInvoicePurchase::create([
                     'lot'                  => $purchase['lot'],
-                    'expiration_date'      => Carbon::parse($purchase['expiration_date'])->endOfMonth(),
+                    'expiration_date'      => $purchase['control_expiration'] == 0 ? null : Carbon::parse($purchase['expiration_date'])->endOfMonth(),
                     'quantity'             => $quantity,
                     'stock_quantity'       => $quantity,
                     'buy_unit'             => $purchase['buy_unit'],
@@ -328,12 +328,12 @@ class InvoicePurchaseController extends Controller
                     'minimum_sale_unit'    => $purchase['minimum_sale_unit'],
                     'minimum_sale_blister' => $purchase['minimum_sale_blister'],
                     'minimum_sale_box'     => $purchase['minimum_sale_box'],
-                    'total'                => $purchase['total'],
-                    'created_by'           => $this->getPersonId(),
-                    'condition'            => '1',
-                    'product_id'           => $purchase['id'],
-                    'invoice_purchase_id'  => $invoice_purchase->id,
-                    'entity_id'            => $this->getEntity(),
+                    'total'               => $purchase['total'],
+                    'created_by'          => $this->getPersonId(),
+                    'condition'           => '1',
+                    'product_id'          => $purchase['id'],
+                    'invoice_purchase_id' => $invoice_purchase->id,
+                    'entity_id'           => $this->getEntity(),
                 ]);
             }
 

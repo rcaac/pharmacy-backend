@@ -101,8 +101,7 @@ class Product extends Model
         if ($search && strlen($search) > 0) {
             $products->where('name', 'LIKE', "%$search%");
         }
-        switch ($sortBy) {
-            case 'name':
+        if ($sortBy == 'name') {
             {
                 $products->orderBy($sortBy, $order);
             }

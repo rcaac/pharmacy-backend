@@ -17,7 +17,6 @@ class DetailInvoicePurchase extends Model
         'stock_quantity',
         'buy_unit',
         'sale_unit',
-        'sale_unit',
         'sale_blister',
         'sale_box',
         'minimum_sale_unit',
@@ -52,6 +51,7 @@ class DetailInvoicePurchase extends Model
             'condition',
             'product_id',
             'invoice_purchase_id'
+
         );
     }
 
