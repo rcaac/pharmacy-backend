@@ -469,8 +469,6 @@ class TicketInvoiceController extends Controller
                     'detail_invoice_purchase_id' => $detail_invoice_purchase_id,
                     'entity_id'                  => $this->getEntity()
                 ]);
-
-
                 $date_now = Carbon::now()->format('Y-m-d');
 
                 $quantity_current = -1;
