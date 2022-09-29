@@ -51,7 +51,6 @@ class DetailInvoicePurchase extends Model
             'condition',
             'product_id',
             'invoice_purchase_id'
-
         );
     }
 

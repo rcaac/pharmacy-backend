@@ -404,6 +404,7 @@ class TicketInvoiceController extends Controller
                     'entity_id'                  => $this->getEntity()
                 ]);
 
+
                 $date_now = Carbon::now()->format('Y-m-d');
 
                 $quantity_current = -1;
@@ -429,10 +430,12 @@ class TicketInvoiceController extends Controller
                     ])->save();
 
                     $quantity = -1 * ($quantity_current);
+
                 } ;
             }
 
             DB::commit();
+
 
             return response()->json(
                 [
@@ -440,6 +443,7 @@ class TicketInvoiceController extends Controller
                     "idticktet" => $ticket_invoice->id
                 ],
                 201);
+
 
         }catch(Exception $e){
             DB::rollBack();
