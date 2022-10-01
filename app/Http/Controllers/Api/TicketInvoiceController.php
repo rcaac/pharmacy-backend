@@ -70,8 +70,10 @@ class TicketInvoiceController extends Controller
     public function listProducts($search): JsonResponse
     {
         $entity = $this->getEntity();
+
         $products = Product::query();
         $products2 = Product::query();
+
         $products = $products->select(
             'id',
             'barcode',
@@ -117,30 +119,6 @@ class TicketInvoiceController extends Controller
                 }
             ])
             ->where('condition', '1');
-
-        $products = Product::with([
-
-            'laboratory',
-            'generic',
-            'category',
-            'presentation',
-            'location',
-            'stock' => function($query) use ($entity){
-                $query->where('entity_id', $entity);
-            },
-            'details' => function($query) use ($entity){
-                $query->where('stock_quantity', '>', 0);
-                $query->where('entity_id', $entity);
-            }
-        ])
-
-       /* $products = DB::table('products')
-        ->join('detail_invoice_purchase','detail_invoice_purchase.product_id','=','products.id')
-        ->select('laboratory','generic','category','presentation','location')
-        ->get()*/
-
-
-        ->where('condition', '1');
 
         if (strpos($search, '*') !== false) {
             $replace = str_replace("*", " ", $search);
@@ -220,7 +198,6 @@ class TicketInvoiceController extends Controller
         }else {
             $products2 = $products2->where('name', 'LIKE', "%$search%");
         }
-
 
 
         return response()->json(
