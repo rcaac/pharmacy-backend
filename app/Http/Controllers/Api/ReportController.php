@@ -149,8 +149,8 @@ class ReportController
         )
 
             ->join('products', 'products.id', '=', 'detail_invoice_purchases.product_id')
-            ->join('lab_marks', 'products.lab_mark_id', '=', 'lab_marks.id')
-            ->join('presentations', 'products.presentation_id', '=', 'presentations.id')
+            ->leftjoin('lab_marks', 'products.lab_mark_id', '=', 'lab_marks.id')
+            ->leftjoin('presentations', 'products.presentation_id', '=', 'presentations.id')
             ->where('detail_invoice_purchases.entity_id', $id)->where('detail_invoice_purchases.condition','!=','0')
             ->orderBy('products.name', 'asc')
             ->get();
@@ -186,8 +186,8 @@ class ReportController
         )
 
             ->join('products', 'products.id', '=', 'detail_invoice_purchases.product_id')
-            ->join('lab_marks', 'products.lab_mark_id', '=', 'lab_marks.id')
-            ->join('presentations', 'products.presentation_id', '=', 'presentations.id')
+            ->leftjoin('lab_marks', 'products.lab_mark_id', '=', 'lab_marks.id')
+            ->leftjoin('presentations', 'products.presentation_id', '=', 'presentations.id')
             ->where('detail_invoice_purchases.entity_id', $id)->where('detail_invoice_purchases.condition','!=','0')->where('detail_invoice_purchases.stock_quantity','!=','0')
             ->orderBy('products.name', 'asc')
             ->get();
@@ -201,8 +201,8 @@ class ReportController
         )
 
             ->join('products', 'products.id', '=', 'detail_invoice_purchases.product_id')
-            ->join('lab_marks', 'products.lab_mark_id', '=', 'lab_marks.id')
-            ->join('presentations', 'products.presentation_id', '=', 'presentations.id')
+            ->leftjoin('lab_marks', 'products.lab_mark_id', '=', 'lab_marks.id')
+            ->leftjoin('presentations', 'products.presentation_id', '=', 'presentations.id')
             ->where('detail_invoice_purchases.entity_id', $id)->where('detail_invoice_purchases.condition','!=','0')->where('detail_invoice_purchases.stock_quantity','!=','0')
             ->orderBy('products.name', 'asc')
             ->get();
@@ -232,8 +232,8 @@ class ReportController
         )
 
             ->join('products', 'products.id', '=', 'detail_invoice_purchases.product_id')
-            ->join('lab_marks', 'products.lab_mark_id', '=', 'lab_marks.id')
-            ->join('presentations', 'products.presentation_id', '=', 'presentations.id')
+            ->leftjoin('lab_marks', 'products.lab_mark_id', '=', 'lab_marks.id')
+            ->leftjoin('presentations', 'products.presentation_id', '=', 'presentations.id')
             ->where('detail_invoice_purchases.entity_id', $id)
             ->where('detail_invoice_purchases.condition','!=','0')
             ->groupBy('products.name', 'lab_marks.name', 'presentations.name')
@@ -269,8 +269,8 @@ class ReportController
         )
 
             ->join('products', 'products.id', '=', 'detail_invoice_purchases.product_id')
-            ->join('lab_marks', 'products.lab_mark_id', '=', 'lab_marks.id')
-            ->join('presentations', 'products.presentation_id', '=', 'presentations.id')
+            ->leftjoin('lab_marks', 'products.lab_mark_id', '=', 'lab_marks.id')
+            ->leftjoin('presentations', 'products.presentation_id', '=', 'presentations.id')
             ->where('expiration_date','>', Carbon::now())
             ->where('stock_quantity','>','0')
             ->where('products.control_expiration','=','1')
@@ -308,8 +308,8 @@ class ReportController
         )
 
             ->join('products', 'products.id', '=', 'detail_invoice_purchases.product_id')
-            ->join('lab_marks', 'products.lab_mark_id', '=', 'lab_marks.id')
-            ->join('presentations', 'products.presentation_id', '=', 'presentations.id')
+            ->leftjoin('lab_marks', 'products.lab_mark_id', '=', 'lab_marks.id')
+            ->leftjoin('presentations', 'products.presentation_id', '=', 'presentations.id')
             ->where('expiration_date','<', Carbon::now())
             ->where('stock_quantity','>','0')
             ->where('products.control_expiration','=','1')
@@ -343,8 +343,8 @@ class ReportController
         )
 
             ->join('products', 'products.id', '=', 'detail_invoice_purchases.product_id')
-            ->join('lab_marks', 'products.lab_mark_id', '=', 'lab_marks.id')
-            ->join('presentations', 'products.presentation_id', '=', 'presentations.id')
+            ->leftjoin('lab_marks', 'products.lab_mark_id', '=', 'lab_marks.id')
+            ->leftjoin('presentations', 'products.presentation_id', '=', 'presentations.id')
             ->where('detail_invoice_purchases.condition','!=','0')
             ->where('detail_invoice_purchases.entity_id', $id)
             ->groupBy('products.name','lab_marks.name', 'presentations.name', 'products.minimum_stock')
@@ -377,8 +377,8 @@ class ReportController
         )
 
             ->join('products', 'products.id', '=', 'detail_ticket_invoices.product_id')
-            ->join('lab_marks', 'products.lab_mark_id', '=', 'lab_marks.id')
-            ->join('presentations', 'products.presentation_id', '=', 'presentations.id')
+            ->leftjoin('lab_marks', 'products.lab_mark_id', '=', 'lab_marks.id')
+            ->leftjoin('presentations', 'products.presentation_id', '=', 'presentations.id')
             ->whereRaw('detail_ticket_invoices.created_at BETWEEN DATE_SUB(NOW(),INTERVAL 31 day) AND now()')
             ->where('detail_ticket_invoices.condition','!=','0')
             ->groupBy('products.name','lab_marks.name', 'presentations.name')
