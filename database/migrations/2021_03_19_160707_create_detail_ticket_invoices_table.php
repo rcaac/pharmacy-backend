@@ -16,7 +16,7 @@ class CreateDetailTicketInvoicesTable extends Migration
         Schema::create('detail_ticket_invoices', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('lot', 30)->nullable();
-            $table->string('expiration_date', 30);
+            $table->string('expiration_date', 30)->nullable();
             $table->string('quantity', 10);
             $table->string('sale_unit', 10);
             $table->string('sale_blister', 10);

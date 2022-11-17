@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Models\Cash;
 use App\Models\DetailInvoicePurchase;
 use App\Models\DetailTicketInvoice;
+use App\Models\Entity;
 use App\Models\InvoicePurchase;
 
 use App\Models\Person;
@@ -483,9 +484,14 @@ class ReportController
     }
     public function getReportComprobanteVenta($id): JsonResponse
     {
+        $entidad = Entity::select(
+            'name',
+            'direction',
+            'ruc'
+        )->get();
+
         $totalVentas = TicketInvoice::where('id',$id)
             ->value(DB::raw('total'));
-
 
         $responsable = TicketInvoice::select(
 
@@ -498,7 +504,10 @@ class ReportController
 
         $details = DetailTicketInvoice::select(
 
-
+            'type_ticket_invoices.name as type',
+            'ticket_invoices.prefijo',
+            'ticket_invoices.numero',
+            'ticket_invoices.date',
             'products.name',
             'detail_ticket_invoices.quantity',
             'detail_ticket_invoices.sale_unit',
@@ -507,6 +516,7 @@ class ReportController
         )
 
             ->join('ticket_invoices', 'ticket_invoices.id', '=', 'detail_ticket_invoices.ticket_invoice_id')
+            ->join('type_ticket_invoices', 'type_ticket_invoices.id', '=', 'ticket_invoices.type_ticket_invoice_id')
             ->join('products', 'products.id', '=', 'detail_ticket_invoices.product_id')
             ->join('persons', 'persons.id', '=', 'ticket_invoices.created_by')
             ->where('ticket_invoices.id', $id)
@@ -514,6 +524,7 @@ class ReportController
 
         return response()->json(
             [
+                'entity'      => $entidad,
                 'details'     => $details,
                 'responsable' => $responsable,
                 'totalVentas' => $totalVentas
